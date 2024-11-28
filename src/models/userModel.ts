@@ -19,7 +19,8 @@ const userSchema = new mongoose.Schema<UserTypes>({
     },
     password:{
         type:String,
-        required:true
+        required:true,
+        select:false
     },
     mobile:{
         type:String,
