@@ -8,6 +8,7 @@ export interface UserTypes {
     password:string;
     mobile:string;
     gender:"male"|"female"|"other";
+    role:"user"|"admin";
     comparePassword:(password:string) => Promise<boolean>;
     generateToken:(userID:string) => Promise<string>;
     verifyToken:() => JwtPayload;
@@ -34,6 +35,11 @@ const userSchema = new mongoose.Schema<UserTypes>({
     gender:{
         type:String,
         enum:["male", "female", "other"]
+    },
+    role:{
+        type:String,
+        enum:["user", "admin"],
+        default:"user"
     }
 });
 
