@@ -10,7 +10,7 @@ export interface UserTypes {
     gender:"male"|"female"|"other";
     role:"user"|"admin";
     comparePassword:(password:string) => Promise<boolean>;
-    generateToken:(userID:string) => Promise<string>;
+    generateToken:(userID:mongoose.Types.ObjectId) => Promise<string>;
     verifyToken:() => JwtPayload;
 }
 
@@ -56,7 +56,7 @@ userSchema.methods.comparePassword = async function(password:string) {
     return isPasswordMatch;
 };
 
-userSchema.methods.generateToken = async function(userID:string) {
+userSchema.methods.generateToken = async function(userID:mongoose.Types.ObjectId) {
     const token = await jsonWebToken.sign({_id:userID}, process.env.JWT_SECRET as string, {expiresIn:"3d"});
     return token;
 };
