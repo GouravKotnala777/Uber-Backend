@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { createUser, findUser } from "../config/services/userModelServices.js";
 import { ErrorHandler } from "../utils/utilityClasses.js";
+import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 
 // User register
@@ -40,6 +41,17 @@ export const login = async(req:Request, res:Response, next:NextFunction) => {
         console.log({createToken});
 
         res.status(200).json({success:true, message:"register successful", jsonData:isUserExists})
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// My Profile
+export const myProfile = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const user = (req as AuthenticatedRequest).user;
+
+        res.status(200).json({success:true, message:"My profile", jsonData:user});
     } catch (error) {
         console.log(error);
         next(error);
