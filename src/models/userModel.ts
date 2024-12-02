@@ -3,6 +3,7 @@ import bcryptjs from "bcryptjs";
 import jsonWebToken, { JwtPayload } from "jsonwebtoken";
 
 export interface UserTypes {
+    _id:mongoose.Schema.Types.ObjectId;
     name:string;
     email:string;
     password:string;
@@ -10,7 +11,7 @@ export interface UserTypes {
     gender:"male"|"female"|"other";
     role:"user"|"admin";
     comparePassword:(password:string) => Promise<boolean>;
-    generateToken:(userID:mongoose.Types.ObjectId) => Promise<string>;
+    generateToken:(userID:mongoose.Schema.Types.ObjectId) => Promise<string>;
     verifyToken:() => JwtPayload;
 }
 
@@ -56,7 +57,7 @@ userSchema.methods.comparePassword = async function(password:string) {
     return isPasswordMatch;
 };
 
-userSchema.methods.generateToken = async function(userID:mongoose.Types.ObjectId) {
+userSchema.methods.generateToken = async function(userID:mongoose.Schema.Types.ObjectId) {
     const token = await jsonWebToken.sign({_id:userID}, process.env.JWT_SECRET as string, {expiresIn:"3d"});
     return token;
 };
