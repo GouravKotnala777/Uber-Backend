@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Driver from "../../models/driverModel.js";
+import Driver, { VehicleTypeTypes } from "../../models/driverModel.js";
 import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
 import { UserTypes } from "../../models/userModel.js";
@@ -8,7 +8,7 @@ import { UserTypes } from "../../models/userModel.js";
 export const createDriver = async({availabilityStatus, licenseNumber, rating, userID, vehicleColor, vehicleModel, vehicleNumber, vehicleType}:{
     userID:mongoose.Schema.Types.ObjectId;
     licenseNumber:string;
-    vehicleType:string;
+    vehicleType:VehicleTypeTypes;
     vehicleModel:string;
     vehicleNumber:string;
     vehicleColor:string;
@@ -71,7 +71,7 @@ export const findSingleDriver = async({userID, licenseNumber, availabilityStatus
     return searchedDriver;
 };
 // Find all driver by query
-export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleType, rating}:{availabilityStatus:boolean; vehicleType:string; vehicleModel:string; rating:number;}) => {
+export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleType, rating}:{availabilityStatus?:boolean; vehicleType?:VehicleTypeTypes; vehicleModel?:string; rating?:number;}) => {
     const searchedAllDriver = await Driver.find({
         ...(availabilityStatus&&{availabilityStatus}),
         ...(vehicleType&&vehicleModel&&
