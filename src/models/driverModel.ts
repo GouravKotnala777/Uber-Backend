@@ -1,12 +1,13 @@
 import jsonwebtoken from "jsonwebtoken";
 import mongoose, { Model } from "mongoose";
 
+export type VehicleTypeTypes = "car"|"motorcycle"|"auto"|"van";
 export interface DriverTypes {
     _id:mongoose.Schema.Types.ObjectId;
     userID:mongoose.Schema.Types.ObjectId;
     licenseNumber:string;
     vehicleDetailes:{
-        vehicleType:"car"|"motorcycle"|"auto"|"van";
+        vehicleType:VehicleTypeTypes;
         vehicleModel:string;
         vehicleNumber:string;
         vehicleColor:string;
@@ -30,7 +31,11 @@ const driverSchema = new mongoose.Schema<DriverTypes>({
         required:true
     },
     vehicleDetailes:{
-        vehicleType:String,
+        vehicleType:{
+            type:String,
+            default:"car",
+            enum:["car", "motorcycle", "auto", "van"]
+        },
         vehicleModel:String,
         vehicleNumber:String,
         vehicleColor:String
