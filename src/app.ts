@@ -27,6 +27,7 @@ app.use(cookieParser());
 
 // All endpoints
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/driver", driverRouter);
 
 
 // endpoint for testing
