@@ -6,6 +6,7 @@ import userRouter from "./routes/userRouter.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import driverRouter from "./routes/driverRouter.js";
 import cookieParser from "cookie-parser";
+import rideRouter from "./routes/rideRouter.js";
 
 // Dotenv configuration
 config({
@@ -28,6 +29,7 @@ app.use(cookieParser());
 // All endpoints
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/driver", driverRouter);
+app.use("/api/v1/ride", rideRouter);
 
 
 // endpoint for testing
