@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
-import { createDriver, isDriverExists } from "../config/services/driverModelServices.js";
+import { createDriver, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
 import Driver from "../models/driverModel.js";
 
 // Driver register
@@ -63,6 +63,19 @@ export const driverLogin = async(req:Request, res:Response, next:NextFunction) =
         console.log({createDriverToken});
 
         res.status(200).json({success:true, message:"Driver login successful", jsonData:isDriverExists})
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// My Profile
+export const driverProfile = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const user = (req as AuthenticatedRequest).user;
+
+        const loginedDriver = await findSingleDriver({userID:user._id}, {populateUser:true});
+
+        res.status(200).json({success:true, message:"logined driver profile", jsonData:loginedDriver});
     } catch (error) {
         console.log(error);
         next(error);
