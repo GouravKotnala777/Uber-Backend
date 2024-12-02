@@ -2,15 +2,15 @@ import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
-import { createDriver, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
-import Driver from "../models/driverModel.js";
+import { createDriver, findAllDrivers, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
+import Driver, { VehicleTypeTypes } from "../models/driverModel.js";
 
 // Driver register
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
     try {
         const {availabilityStatus, licenseNumber, rating, vehicleColor, vehicleModel, vehicleNumber, vehicleType}:{
             licenseNumber:string;
-            vehicleType:string;
+            vehicleType:VehicleTypeTypes;
             vehicleModel:string;
             vehicleNumber:string;
             vehicleColor:string;
@@ -78,6 +78,20 @@ export const driverProfile = async(req:Request, res:Response, next:NextFunction)
         res.status(200).json({success:true, message:"logined driver profile", jsonData:loginedDriver});
     } catch (error) {
         console.log(error);
+        next(error);
+    }
+};
+// Find all nearby drivers
+export const allNearbyDrivers = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const {availabilityStatus, vehicleType}:{availabilityStatus:boolean;
+            vehicleType:VehicleTypeTypes;} = req.body;
+        const drivers = await findAllDrivers({
+            availabilityStatus,
+            vehicleType
+        });
+        res.status(200).json({success:true, message:"All nearby drivers", jsonData:drivers});
+    } catch (error) {
         next(error);
     }
 };
