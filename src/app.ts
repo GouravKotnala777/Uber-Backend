@@ -4,6 +4,8 @@ import http from "http";
 import connectDB from "./config/db.js";
 import userRouter from "./routes/userRouter.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
+import driverRouter from "./routes/driverRouter.js";
+import cookieParser from "cookie-parser";
 
 // Dotenv configuration
 config({
@@ -21,6 +23,7 @@ connectDB();
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+app.use(cookieParser());
 
 // All endpoints
 app.use("/api/v1/user", userRouter);
