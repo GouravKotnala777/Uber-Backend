@@ -7,6 +7,7 @@ import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import driverRouter from "./routes/driverRouter.js";
 import cookieParser from "cookie-parser";
 import rideRouter from "./routes/rideRouter.js";
+import cors from "cors";
 
 // Dotenv configuration
 config({
@@ -22,6 +23,7 @@ const PORT = process.env.PORT || 8000;
 // Database connection
 connectDB();
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
