@@ -7,6 +7,7 @@ import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import driverRouter from "./routes/driverRouter.js";
 import cookieParser from "cookie-parser";
 import rideRouter from "./routes/rideRouter.js";
+import mapsRouter from "./routes/mapRouter.js";
 import cors from "cors";
 
 // Dotenv configuration
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/driver", driverRouter);
 app.use("/api/v1/ride", rideRouter);
+app.use("/api/v1/map", mapsRouter);
 
 
 // endpoint for testing
