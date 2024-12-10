@@ -24,7 +24,10 @@ const PORT = process.env.PORT || 8000;
 // Database connection
 connectDB();
 
-app.use(cors());
+app.use(cors({
+    origin:[process.env.CLIENT_URL as string],
+    credentials:true
+}));
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
