@@ -1,7 +1,7 @@
 import jsonwebtoken from "jsonwebtoken";
 import mongoose, { Model } from "mongoose";
 
-export type VehicleTypeTypes = "car"|"motorcycle"|"auto"|"van";
+export type VehicleTypeTypes = "car"|"motorcycle"|"auto";
 export interface DriverTypes {
     _id:mongoose.Schema.Types.ObjectId;
     userID:mongoose.Schema.Types.ObjectId;
@@ -34,7 +34,7 @@ const driverSchema = new mongoose.Schema<DriverTypes>({
         vehicleType:{
             type:String,
             default:"car",
-            enum:["car", "motorcycle", "auto", "van"]
+            enum:["car", "motorcycle", "auto"]
         },
         vehicleModel:String,
         vehicleNumber:String,
