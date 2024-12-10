@@ -18,6 +18,7 @@ export const register = async(req:Request, res:Response, next:NextFunction) => {
         res.status(200).json({success:true, message:"register successful", jsonData:createNewUser})
     } catch (error) {
         console.log(error);
+        next(error);
     }
 };
 // User login
