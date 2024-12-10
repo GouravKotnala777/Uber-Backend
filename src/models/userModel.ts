@@ -18,7 +18,8 @@ export interface UserTypes {
 const userSchema = new mongoose.Schema<UserTypes>({
     name:{
         type:String,
-        required:true
+        required:true,
+        lowercase:true
     },
     email:{
         type:String,
