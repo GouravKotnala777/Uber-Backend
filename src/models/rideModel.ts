@@ -1,6 +1,6 @@
 import mongoose, { Model } from "mongoose";
 
-export type RideStatusTypes = "requested"|"accepted"|"in-progress"|"accepted"|"cancelled";
+export type RideStatusTypes = "requested"|"accepted"|"in-progress"|"completed"|"cancelled";
 export interface RideTypes {
     _id:mongoose.Schema.Types.ObjectId;
     driverID:mongoose.Schema.Types.ObjectId;
@@ -16,7 +16,13 @@ export interface RideTypes {
         address:string;
     },
     distance:number;
+    fare:number;
+    duration:number;
     status:RideStatusTypes;
+    paymentID:string;
+    orderID:string;
+    signature:string;
+    otp:string;
     createdAt:Date;
     updatedAt:Date;
 }
@@ -64,11 +70,32 @@ const rideSchema = new mongoose.Schema<RideTypes>({
         type:Number,
         required:true
     },
+    fare:{
+        type:Number,
+        required:true
+    },
+    duration:{
+        type:Number,
+        required:true
+    },
     status:{
         type:String,
         required:true,
-        enum:["requested", "accepted", "in-progress", "accepted", "cancelled"],
+        enum:["requested", "accepted", "in-progress", "cancelled", "completed"],
         default:"requested"
+    },
+    paymentID:{
+        type:String
+    },
+    orderID:{
+        type:String
+    },
+    signature:{
+        type:String
+    },
+    otp:{
+        type:String,
+        select:false
     }
 },
 {
