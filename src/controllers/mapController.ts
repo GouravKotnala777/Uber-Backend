@@ -25,9 +25,10 @@ export const getDistance = async(req:Request, res:Response, next:NextFunction) =
         next(error);
     }
 };
-export const getSuggestions = async(req:Request, res:Response, next:NextFunction) => {
+export const getSuggestions = async(req:Request<{}, {}, {}, {input:string;}>, res:Response, next:NextFunction) => {
     try {
-        const {input}:{input:string;} = req.body;
+        const {input} = req.query;
+        console.log({input});        
         const suggestions = await getAutoCompleteSuggestion({input});
         res.status(200).json({success:true, message:"fetched suggestions", jsonData:suggestions});
     } catch (error) {

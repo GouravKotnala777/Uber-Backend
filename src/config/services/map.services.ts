@@ -48,7 +48,7 @@ export const getAutoCompleteSuggestion = async({input}:{input:string;}) => {
     if (!input) throw new ErrorHandler("Query is required", 400);
 
     const mapApiKey = process.env.GO_MAPS_API_KEY as string;
-    const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(origin)}&key=${mapApiKey}`;
+    const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${mapApiKey}`;
 
     try {
         const response = await axios.get(url);
