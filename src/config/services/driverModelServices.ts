@@ -5,36 +5,31 @@ import { ErrorHandler } from "../../utils/utilityClasses.js";
 import { UserTypes } from "../../models/userModel.js";
 
 // Create driver
-export const createDriver = async({availabilityStatus, licenseNumber, rating, userID, vehicleColor, vehicleModel, vehicleNumber, vehicleType}:{
+export const createDriver = async({licenseNumber, userID, vehicleColor, vehicleModel, vehicleNumber, vehicleType}:{
     userID:mongoose.Schema.Types.ObjectId;
     licenseNumber:string;
     vehicleType:VehicleTypeTypes;
     vehicleModel:string;
     vehicleNumber:string;
     vehicleColor:string;
-    availabilityStatus:boolean;
-    rating:number;
 }) => {
     console.log({
         licenseNumber,
         vehicleType,
         vehicleModel,
         vehicleNumber,
-        vehicleColor,
-        availabilityStatus,
-        rating,
+        vehicleColor
     });
     
     if (!licenseNumber ||
         !vehicleType ||
         !vehicleModel ||
         !vehicleNumber ||
-        !vehicleColor ||
-        !availabilityStatus
+        !vehicleColor
     ) throw(new ErrorHandler("All fields are required", 404));
 
     const newDriver = await Driver.create({
-        availabilityStatus, licenseNumber, rating, userID, vehicleDetailes:{vehicleColor, vehicleModel, vehicleNumber, vehicleType}
+        licenseNumber, userID, vehicleDetailes:{vehicleColor, vehicleModel, vehicleNumber, vehicleType}
     });
     if (!newDriver) throw(new ErrorHandler("Internal server error", 500));
     return newDriver;
