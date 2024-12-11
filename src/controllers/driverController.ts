@@ -4,18 +4,19 @@ import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 import { createDriver, findAllDrivers, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
 import Driver, { VehicleTypeTypes } from "../models/driverModel.js";
+import { findUser, findUserByID } from "../config/services/userModelServices.js";
+import User from "../models/userModel.js";
 
 // Driver register
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {availabilityStatus, licenseNumber, rating, vehicleColor, vehicleModel, vehicleNumber, vehicleType}:{
+        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, password}:{
             licenseNumber:string;
             vehicleType:VehicleTypeTypes;
             vehicleModel:string;
             vehicleNumber:string;
             vehicleColor:string;
-            availabilityStatus:boolean;
-            rating:number;
+            password:string;
         } = req.body;
         const userID = (req as AuthenticatedRequest).user._id;
 
@@ -23,10 +24,14 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
 
         if (searchedDriver.length !== 0) return next(new ErrorHandler("Driver already exist", 301));
 
+        const searchedUserForPassword = await User.findById(userID).select("+password");
+        
+        const isPasswordMatched = await searchedUserForPassword?.comparePassword(password);
+
+        if (!isPasswordMatched) return next(new ErrorHandler("Wrong email or password", 402));
+
         const createNewDriver = await createDriver({
-            availabilityStatus,
             licenseNumber,
-            rating,
             userID,
             vehicleColor,
             vehicleModel,
@@ -37,6 +42,7 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
         res.status(200).json({success:true, message:"Driver register successful", jsonData:createNewDriver})
     } catch (error) {
         console.log(error);
+        next(error);
     }
 };
 // Driver login
