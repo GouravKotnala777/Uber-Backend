@@ -41,7 +41,8 @@ const driverSchema = new mongoose.Schema<DriverTypes>({
         vehicleColor:String
     },
     availabilityStatus:{
-        type:Boolean
+        type:Boolean,
+        default:false
     },
     rating:{
         type:Number,
