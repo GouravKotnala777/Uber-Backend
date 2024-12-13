@@ -2,10 +2,10 @@ import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
-import { createDriver, findAllDrivers, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
+import { createDriver, findSingleDriver, getDriversWithinRadius, isDriverExists } from "../config/services/driverModelServices.js";
 import Driver, { VehicleTypeTypes } from "../models/driverModel.js";
-import { findUser, findUserByID } from "../config/services/userModelServices.js";
 import User from "../models/userModel.js";
+import { getAddressCoordinate } from "../config/services/map.services.js";
 
 // Driver register
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
@@ -88,15 +88,14 @@ export const driverProfile = async(req:Request, res:Response, next:NextFunction)
     }
 };
 // Find all nearby drivers
-export const allNearbyDrivers = async(req:Request, res:Response, next:NextFunction) => {
+export const allNearbyDrivers = async(req:Request<{}, {}, {}, {radius:string; address:string;}>, res:Response, next:NextFunction) => {
     try {
-        const {availabilityStatus, vehicleType}:{availabilityStatus:boolean;
-            vehicleType:VehicleTypeTypes;} = req.body;
-        const drivers = await findAllDrivers({
-            availabilityStatus,
-            vehicleType
-        });
-        res.status(200).json({success:true, message:"All nearby drivers", jsonData:drivers});
+        const {radius, address} = req.query;
+
+        const coordinates = await getAddressCoordinate(address);
+        const allAvailableDriversNearMe = await getDriversWithinRadius({lng:coordinates.lng, ltd:coordinates.ltd, radius:Number(radius)});
+        
+        res.status(200).json({success:true, message:"All nearby drivers", jsonData:allAvailableDriversNearMe});
     } catch (error) {
         next(error);
     }
