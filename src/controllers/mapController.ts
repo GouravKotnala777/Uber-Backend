@@ -2,11 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import {getAddressCoordinate, getAutoCompleteSuggestion, getDistanceTime} from "../config/services/map.services.js";
 
 
-export const getCoordinates = async(req:Request, res:Response, next:NextFunction) => {
+export const getCoordinates = async(req:Request<{}, {}, {}, {address:string;}>, res:Response, next:NextFunction) => {
     const {address} = req.query;
 
-    console.log({address});
-    
     try {
         const coordinates = await getAddressCoordinate(address as string);
         
