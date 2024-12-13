@@ -27,13 +27,13 @@ export const getDistanceTime = async({origin, destination}:{origin:string; desti
     if (!origin || !destination) throw new ErrorHandler("Origin and destination are required", 400);
 
     const mapApiKey = process.env.GO_MAPS_API_KEY as string;
-    const url = `https://maps.gomaps.pro/maps/api/distancematrix/json?origin=${encodeURIComponent(origin)}&key=${mapApiKey}`;
+    const url = `https://maps.gomaps.pro/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${mapApiKey}`;
 
     try {
         const response = await axios.get(url);
         if (response.data.status === "OK") {
-            if (response.data.row[0].elements[0].status === "ZERO_RESULTS") throw new ErrorHandler("No routes found", 404);
-            return response.data.row[0].elements[0];
+            if (response.data.rows[0].elements[0].status === "ZERO_RESULTS") throw new ErrorHandler("No routes found", 404);
+            return response.data.rows[0].elements[0];
         }
         else{
             throw new ErrorHandler("Unable to fetch distance and time", 500);
