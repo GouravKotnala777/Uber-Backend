@@ -7,11 +7,7 @@ import { VehicleTypeTypes } from "../../models/driverModel.js";
 import { getOTP } from "../../controllers/rideController.js";
 
 // Calculate fare
-export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:string; dropoffLocation:string;}) => {
-    console.log("**************** (1)");
-    console.log({pickupLocation, dropoffLocation});
-    console.log("**************** (2)");
-    
+export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:string; dropoffLocation:string;}) => {   
     if (!pickupLocation || !dropoffLocation) throw new ErrorHandler("Pickup and dropoffLocation are required", 400);
 
     const distanceTime = await getDistanceTime({origin:pickupLocation, destination:dropoffLocation});
@@ -44,11 +40,6 @@ export const createRide = async({
     dropoffLocation:LocationTypes;
     vehicleType:VehicleTypeTypes;
 }) => {
-
-    console.log(")))))))))))))))))) (1)");
-    console.log({passengerID, pickupLocation, dropoffLocation, vehicleType});
-    console.log(")))))))))))))))))) (2)");
-    
 
     if (!passengerID || !pickupLocation || !dropoffLocation || !vehicleType) throw new ErrorHandler("All fields are required", 400);
 
