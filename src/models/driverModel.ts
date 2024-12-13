@@ -2,6 +2,10 @@ import jsonwebtoken from "jsonwebtoken";
 import mongoose, { Model } from "mongoose";
 
 export type VehicleTypeTypes = "car"|"motorcycle"|"auto";
+export interface LocationTypes {
+    ltd:number;
+    lng:number;
+};
 export interface DriverTypes {
     _id:mongoose.Schema.Types.ObjectId;
     userID:mongoose.Schema.Types.ObjectId;
@@ -14,6 +18,7 @@ export interface DriverTypes {
     },
     availabilityStatus:boolean;
     rating:number;
+    location:LocationTypes;
     createdAt:Date;
     updatedAt:Date;
 
@@ -47,6 +52,10 @@ const driverSchema = new mongoose.Schema<DriverTypes>({
     rating:{
         type:Number,
         default:0
+    },
+    location:{
+        ltd:Number,
+        lng:Number
     }
 }, {
     timestamps:true
