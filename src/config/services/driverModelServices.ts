@@ -66,16 +66,30 @@ export const findSingleDriver = async({userID, licenseNumber, availabilityStatus
     return searchedDriver;
 };
 // Find all driver by query
-export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleType, rating}:{availabilityStatus?:boolean; vehicleType?:VehicleTypeTypes; vehicleModel?:string; rating?:number;}) => {
-    const searchedAllDriver = await Driver.find({
-        ...(availabilityStatus&&{availabilityStatus}),
-        ...(vehicleType&&vehicleModel&&
-            {vehicleDetailes:{
-            ...(vehicleType&&{vehicleType}),
-            ...(vehicleModel&&{vehicleModel})
-        }}),
-        ...(rating&&{rating})
-    });
+export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleType, rating}:{availabilityStatus?:boolean; vehicleType?:VehicleTypeTypes; vehicleModel?:string; rating?:number;}, options?:{getDriverDetailes:boolean;}) => {
+    let searchedAllDriver;
+    if (options?.getDriverDetailes) {
+        searchedAllDriver = await Driver.find({
+            ...(availabilityStatus&&{availabilityStatus}),
+            ...(vehicleType&&vehicleModel&&
+                {vehicleDetailes:{
+                ...(vehicleType&&{vehicleType}),
+                ...(vehicleModel&&{vehicleModel})
+            }}),
+            ...(rating&&{rating})
+        }).populate({model:"User", path:"userID", select:"_id name email mobile"});
+    }
+    else{
+        searchedAllDriver = await Driver.find({
+            ...(availabilityStatus&&{availabilityStatus}),
+            ...(vehicleType&&vehicleModel&&
+                {vehicleDetailes:{
+                ...(vehicleType&&{vehicleType}),
+                ...(vehicleModel&&{vehicleModel})
+            }}),
+            ...(rating&&{rating})
+        });
+    }
     return searchedAllDriver;
 };
 // Is driver exists
@@ -102,4 +116,17 @@ export const isDriverExists = async({userID, licenseNumber, vehicleNumber}:{user
         });
     }
     return searchedAllDriver;
+};
+// Find all available drivers within a given radius
+export const getDriversWithinRadius = async({ltd, lng, radius}:{ltd:number; lng:number; radius:number;}) => {
+    if (!ltd || !lng || !radius) throw new ErrorHandler("All fields are required", 400);
+
+    const drivers = await Driver.find({
+        location:{
+            $geoWithin:{
+                $centerSphere:[[ltd, lng], radius/6371]
+            }
+        }
+    });
+    return drivers;
 };
