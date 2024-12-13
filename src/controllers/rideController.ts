@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
-import Ride, { RideStatusTypes } from "../models/rideModel.js";
-import { createRide, findByIdAndUpdateRide } from "../config/services/rideModelServices.js";
+import { LocationTypes, RideStatusTypes } from "../models/rideModel.js";
+import { createRide, findByIdAndUpdateRide, getFare } from "../config/services/rideModelServices.js";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { VehicleTypeTypes } from "../models/driverModel.js";
 import crypto from "crypto";
@@ -13,8 +13,8 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
             passengerID, pickupLocation, dropoffLocation, vehicleType
         }:{
             passengerID:mongoose.Schema.Types.ObjectId;
-            pickupLocation:string;
-            dropoffLocation:string;
+            pickupLocation:LocationTypes;
+            dropoffLocation:LocationTypes;
             vehicleType:VehicleTypeTypes;
         } = req.body;
 
@@ -45,6 +45,20 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
         if (!acceptedRide) return next(new ErrorHandler("Internal server error", 500));
 
         res.status(200).json({success:true, message:"Ride accepted", jsonData:acceptedRide});
+    } catch (error) {
+        next(error);
+    }
+};
+// Get fare between two locations
+export const getFareOfTrip = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const {pickupLocation, dropoffLocation}:{dropoffLocation:string; pickupLocation:string;} = req.body;
+
+        console.log({pickupLocation, dropoffLocation});
+        
+        const faresOfAllTypesOfVehicle = await getFare({pickupLocation, dropoffLocation});
+
+        res.status(200).json({success:true, message:"Ride accepted", jsonData:faresOfAllTypesOfVehicle});
     } catch (error) {
         next(error);
     }
