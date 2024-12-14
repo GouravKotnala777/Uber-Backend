@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import rideRouter from "./routes/rideRouter.js";
 import mapsRouter from "./routes/mapRouter.js";
 import cors from "cors";
+import { initializeSocket } from "./socket.js";
 
 // Dotenv configuration
 config({
@@ -45,6 +46,9 @@ app.route("/api/v1/testing").get((req, res, next) => {
 });
 
 app.use(errorMiddleware);
+
+
+initializeSocket(server);
 
 
 // Server listener
