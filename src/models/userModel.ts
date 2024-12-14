@@ -10,6 +10,7 @@ export interface UserTypes {
     mobile:string;
     gender:"male"|"female"|"other";
     role:"user"|"admin";
+    socketID:string;
     comparePassword:(password:string) => Promise<boolean>;
     generateToken:(userID:mongoose.Schema.Types.ObjectId) => Promise<string>;
     verifyToken:() => JwtPayload;
@@ -42,7 +43,8 @@ const userSchema = new mongoose.Schema<UserTypes>({
         type:String,
         enum:["user", "admin"],
         default:"user"
-    }
+    },
+    socketID:String
 });
 
 userSchema.pre("save", async function(next){
