@@ -60,7 +60,7 @@ export const getAutoCompleteSuggestion = async({input}:{input:string;}) => {
         }
     } catch (error) {
         console.log(error);
-
+        throw new ErrorHandler((error as Error).message, 500);
     }
 
 };
