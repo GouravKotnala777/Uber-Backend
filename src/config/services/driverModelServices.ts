@@ -1,8 +1,6 @@
 import mongoose from "mongoose";
-import Driver, { VehicleTypeTypes } from "../../models/driverModel.js";
-import { NextFunction, Request, Response } from "express";
+import Driver, { DriverTypesPopulated, VehicleTypeTypes } from "../../models/driverModel.js";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
-import { UserTypes } from "../../models/userModel.js";
 
 // Create driver
 export const createDriver = async({licenseNumber, userID, vehicleColor, vehicleModel, vehicleNumber, vehicleType}:{
@@ -54,7 +52,7 @@ export const findSingleDriver = async({userID, licenseNumber, availabilityStatus
             ...(licenseNumber&&{licenseNumber}),
             ...(availabilityStatus&&{availabilityStatus}),
             ...(vehicleNumber&&{vehicleNumber})
-        }).populate({model:"User", path:"userID", select:"_id name email mobile gender"});
+        }).populate({model:"User", path:"userID", select:"_id name email mobile gender role socketID"});
     }else{
         searchedDriver = await Driver.findOne({
             ...(userID&&{userID}),
@@ -127,6 +125,6 @@ export const getDriversWithinRadius = async({ltd, lng, radius}:{ltd:number; lng:
                 $centerSphere:[[ltd, lng], radius/6371]
             }
         }
-    });
+    }).populate({model:"User", path:"userID", select:"_id name email mobile gender role socketID"}) as DriverTypesPopulated[];
     return drivers;
 };
