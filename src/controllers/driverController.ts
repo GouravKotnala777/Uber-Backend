@@ -2,10 +2,9 @@ import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
-import { createDriver, findSingleDriver, getDriversWithinRadius, isDriverExists } from "../config/services/driverModelServices.js";
+import { createDriver, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
 import Driver, { VehicleTypeTypes } from "../models/driverModel.js";
 import User from "../models/userModel.js";
-import { getAddressCoordinate } from "../config/services/map.services.js";
 
 // Driver register
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
@@ -84,19 +83,6 @@ export const driverProfile = async(req:Request, res:Response, next:NextFunction)
         res.status(200).json({success:true, message:"logined driver profile", jsonData:loginedDriver});
     } catch (error) {
         console.log(error);
-        next(error);
-    }
-};
-// Find all nearby drivers
-export const allNearbyDrivers = async(req:Request<{}, {}, {}, {radius:string; address:string;}>, res:Response, next:NextFunction) => {
-    try {
-        const {radius, address} = req.query;
-
-        const coordinates = await getAddressCoordinate(address);
-        const allAvailableDriversNearMe = await getDriversWithinRadius({lng:coordinates.lng, ltd:coordinates.ltd, radius:Number(radius)});
-        
-        res.status(200).json({success:true, message:"All nearby drivers", jsonData:allAvailableDriversNearMe});
-    } catch (error) {
         next(error);
     }
 };
