@@ -3,8 +3,12 @@ import mongoose from "mongoose";
 import { LocationTypes, RideStatusTypes } from "../models/rideModel.js";
 import { createRide, findByIdAndUpdateRide, getFare } from "../config/services/rideModelServices.js";
 import { ErrorHandler } from "../utils/utilityClasses.js";
-import { VehicleTypeTypes } from "../models/driverModel.js";
+import { DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
 import crypto from "crypto";
+import { findDriverByID, getDriversWithinRadius } from "../config/services/driverModelServices.js";
+import { getAddressCoordinate } from "../config/services/map.services.js";
+import { sendMessageToSocketId } from "../socket.js";
+import { findUserByID } from "../config/services/userModelServices.js";
 
 // Create new ride request
 export const createRideRequest = async(req:Request, res:Response, next:NextFunction) => {
@@ -22,6 +26,40 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
             passengerID, pickupLocation, dropoffLocation, vehicleType
         });
 
+        //-------------------------------------const pickupCoordiinates = await getAddressCoordinate(pickupLocation.address);
+        //-------------------------------------const driversInRadius = await getDriversWithinRadius({ltd:pickupCoordiinates.ltd, lng:pickupCoordiinates.lng, radius:1});
+        const driversInRadius = await getDriversWithinRadius({ltd:pickupLocation.latitude, lng:pickupLocation.longitude, radius:1});
+        newRide.otp = "";
+
+        const requestingPassenger = await findUserByID({userID:newRide.passengerID as mongoose.Schema.Types.ObjectId});
+
+        if (!requestingPassenger) return next(new ErrorHandler("PassengerID not found", 404));
+        
+        //const {pickupLocation, dropoffLocation, fare, status, otp} = newRide;
+
+        driversInRadius.map((driver) => {
+            sendMessageToSocketId({
+                socketID:driver.userID.socketID,
+                eventName:"new-ride",
+                message:{
+                    _id:newRide._id,
+                    pickupLocation:newRide.pickupLocation,
+                    dropoffLocation:newRide.dropoffLocation,
+                    fare:newRide.fare,
+                    distance:newRide.distance,
+                    duration:newRide.duration,
+                    status:newRide.status,
+                    otp:newRide.otp,
+                    passengerName:requestingPassenger.name,
+                    passengerEmail:requestingPassenger.email,
+                    passengerMobile:requestingPassenger.mobile,
+                    passengerGender:requestingPassenger.gender,
+                    passengerSocketID:requestingPassenger.socketID
+                }
+            });
+        });
+
+        
         res.status(200).json({success:true, message:"Requested for cab", jsonData:newRide});
     } catch (error) {
         next(error);
@@ -38,11 +76,35 @@ export function getOTP(num:number){
 // Accept ride request
 export const acceptRideRequest = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {rideID, status}:{rideID:mongoose.Schema.Types.ObjectId; status:RideStatusTypes;} = req.body;
+        const {rideID, driverID, status}:{rideID:mongoose.Schema.Types.ObjectId; driverID:mongoose.Schema.Types.ObjectId; status:RideStatusTypes;} = req.body;
 
-        const acceptedRide = await findByIdAndUpdateRide({rideID, status});
+        const acceptedRide = await findByIdAndUpdateRide({rideID, driverID, status}, {selectOtp:true});
 
         if (!acceptedRide) return next(new ErrorHandler("Internal server error", 500));
+
+
+        console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO (1)");
+        console.log({acceptedRide});
+        console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO (2)");
+        
+        const driverDetailes = await findDriverByID({driverID});
+
+        sendMessageToSocketId({
+            socketID:acceptedRide.passengerID.socketID,
+            eventName:"ride-accepted",
+            message:{
+                status:acceptedRide.status,
+                otp:acceptedRide.otp,
+                driverName:driverDetailes.userID.name,
+                driverEmail:driverDetailes.userID.email,
+                driverMobile:driverDetailes.userID.mobile,
+                driverGender:driverDetailes.userID.gender,
+                //driverUserID:acceptedRide.driverID,
+                licenseNumber:acceptedRide.driverID.licenseNumber,
+                vehicleDetailes:acceptedRide.driverID.vehicleDetailes,
+                rating:acceptedRide.driverID.rating
+            }
+        });
 
         res.status(200).json({success:true, message:"Ride accepted", jsonData:acceptedRide});
     } catch (error) {
