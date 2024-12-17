@@ -1,5 +1,6 @@
 import jsonwebtoken from "jsonwebtoken";
 import mongoose, { Model } from "mongoose";
+import { UserTypes } from "./userModel.js";
 
 export type VehicleTypeTypes = "car"|"motorcycle"|"auto";
 export interface LocationTypes {
@@ -24,8 +25,26 @@ export interface DriverTypes {
 
     generateToken:(driverID:mongoose.Schema.Types.ObjectId) => Promise<string>;
 }
+export interface DriverTypesPopulated {
+    _id:mongoose.Schema.Types.ObjectId;
+    userID:Pick<UserTypes, "_id"|"name"|"email"|"gender"|"mobile"|"role"|"socketID">;
+    licenseNumber:string;
+    vehicleDetailes:{
+        vehicleType:VehicleTypeTypes;
+        vehicleModel:string;
+        vehicleNumber:string;
+        vehicleColor:string;
+    },
+    availabilityStatus:boolean;
+    rating:number;
+    location:LocationTypes;
+    createdAt:Date;
+    updatedAt:Date;
 
-const driverSchema = new mongoose.Schema<DriverTypes>({
+    generateToken:(driverID:mongoose.Schema.Types.ObjectId) => Promise<string>;
+}
+
+const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
     userID:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
@@ -66,6 +85,6 @@ driverSchema.methods.generateToken = async function (driverID:mongoose.Schema.Ty
     return driverToken;
 }
 
-const driverModel:Model<DriverTypes> = mongoose.models.Driver || mongoose.model<DriverTypes>("Driver", driverSchema);
+const driverModel:Model<DriverTypes|DriverTypesPopulated> = mongoose.models.Driver || mongoose.model<DriverTypes|DriverTypesPopulated>("Driver", driverSchema);
 
 export default driverModel;
