@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Ride, { LocationTypes, RideStatusTypes } from "../../models/rideModel.js";
+import Ride, { LocationTypes, RideStatusTypes, RideTypesPopulated } from "../../models/rideModel.js";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
 import { findAllDrivers } from "./driverModelServices.js";
 import { getDistanceTime } from "./map.services.js";
@@ -10,8 +10,19 @@ import { getOTP } from "../../controllers/rideController.js";
 export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:string; dropoffLocation:string;}) => {   
     if (!pickupLocation || !dropoffLocation) throw new ErrorHandler("Pickup and dropoffLocation are required", 400);
 
-    const distanceTime = await getDistanceTime({origin:pickupLocation, destination:dropoffLocation});
+    //----------------------------------------const distanceTime = await getDistanceTime({origin:pickupLocation, destination:dropoffLocation});
 
+    const distanceTime = {
+        distance:{
+          text:"1.0 km",
+          value:976
+        },
+        duration:{
+          text:"3 mins",
+          value:177
+        },
+        status:"OK"
+      }
     const baseFare = {
         auto:30, car:50, motorcycle:20
     };
@@ -26,7 +37,7 @@ export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:s
         car:Math.round(baseFare.car + ((distanceTime.distance.value/1000)*perKmRate.car) + ((distanceTime.duration.value/60)*perMinuteRate.car)),
         motorcycle:Math.round(baseFare.motorcycle + ((distanceTime.distance.value/1000)*perKmRate.motorcycle) + ((distanceTime.duration.value/60)*perMinuteRate.motorcycle))
     };    
-    return fare;    
+    return {fare, distance:distanceTime.distance.value, duration:distanceTime.duration.value};    
 };
 // Create new ride
 export const createRide = async({
@@ -49,7 +60,9 @@ export const createRide = async({
         passengerID,
         pickupLocation,
         dropoffLocation,
-        fare:fare[vehicleType],
+        fare:fare.fare[vehicleType],
+        distance:fare.distance,
+        duration:fare.duration,
         otp:getOTP(6)
     });
 
@@ -60,22 +73,42 @@ export const createRide = async({
 // Find ride by id and update
 export const findByIdAndUpdateRide = async({
     rideID,
+    driverID,
     distance,
     pickupLocation,
     dropoffLocation,
     status
 }:{
     rideID:mongoose.Schema.Types.ObjectId;
+    driverID:mongoose.Schema.Types.ObjectId;
     distance?:string;
     pickupLocation?:string;
     dropoffLocation?:string;
     status?:RideStatusTypes;
-}) => {
-    const updateRide = await Ride.findByIdAndUpdate(rideID, {
-        ...(distance&&{distance}),
-        ...(pickupLocation&&{pickupLocation}),
-        ...(dropoffLocation&&{dropoffLocation}),
-        ...(status&&{status})
-    });
+}, options?:{selectOtp:boolean;}) => {
+    let updateRide:RideTypesPopulated|null = null;
+    if (options?.selectOtp) {
+        updateRide = await Ride.findByIdAndUpdate(rideID, {
+            ...(driverID&&{driverID}),
+            ...(distance&&{distance}),
+            ...(pickupLocation&&{pickupLocation}),
+            ...(dropoffLocation&&{dropoffLocation}),
+            ...(status&&{status})
+        }, {new:true})
+        .select("+otp")
+        .populate({model:"User", path:"passengerID", select:"socketID"})
+        .populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;
+    }
+    else{
+        updateRide = await Ride.findByIdAndUpdate(rideID, {
+            ...(driverID&&{driverID}),
+            ...(distance&&{distance}),
+            ...(pickupLocation&&{pickupLocation}),
+            ...(dropoffLocation&&{dropoffLocation}),
+            ...(status&&{status})
+        }, {new:true})
+        .populate({model:"User", path:"passengerID", select:"socketID"})
+        .populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;
+    }
     return updateRide;
 };
