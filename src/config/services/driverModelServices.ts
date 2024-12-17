@@ -36,7 +36,9 @@ export const createDriver = async({licenseNumber, userID, vehicleColor, vehicleM
 export const findDriverByID = async({driverID}:{driverID:mongoose.Schema.Types.ObjectId;}) => {        
     if (!driverID) throw(new ErrorHandler("driverID is not found", 404));
 
-    const findDriverByID = await Driver.findById(driverID);
+    const findDriverByID = await Driver.findById(driverID)
+                            .populate({model:"User", path:"userID", select:"name email mobile gender"}) as DriverTypesPopulated;
+
     return findDriverByID;
 };
 // Find single driver by query
