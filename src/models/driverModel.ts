@@ -2,7 +2,7 @@ import jsonwebtoken from "jsonwebtoken";
 import mongoose, { Model } from "mongoose";
 import { UserTypes } from "./userModel.js";
 
-export type VehicleTypeTypes = "car"|"motorcycle"|"auto";
+export type VehicleTypeTypes = "uberAuto"|"uberX"|"uberMoto"|"uberScooty"|"uberComfort"|"uberHCV"|"uberPool"|"uberXL";
 export interface LocationTypes {
     ltd:number;
     lng:number;
@@ -58,7 +58,7 @@ const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
         vehicleType:{
             type:String,
             default:"car",
-            enum:["car", "motorcycle", "auto"]
+            enum:["uberX", "uberComfort", "uberXL", "uberPool", "uberMoto", "uberScooty","uberAuto", "uberHCV"]
         },
         vehicleModel:String,
         vehicleNumber:String,

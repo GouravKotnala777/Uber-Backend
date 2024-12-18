@@ -23,19 +23,49 @@ export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:s
         },
         status:"OK"
       }
-    const baseFare = {
-        auto:30, car:50, motorcycle:20
+
+      const baseFare = {
+        uberAuto: 30,
+        uberX: 50,
+        uberScooty: 20,
+        uberMoto: 25,
+        uberComfort: 70,
+        uberHCV: 100,
+        uberPool: 40,
+        uberXL: 80,
     };
+    
     const perKmRate = {
-        auto:10, car:15, motorcycle:8
+        uberAuto: 10,
+        uberX: 15,
+        uberScooty: 8,
+        uberMoto: 9,
+        uberComfort: 20,
+        uberHCV: 25,
+        uberPool: 7,
+        uberXL: 18,
     };
+    
     const perMinuteRate = {
-        auto:2, car:3, motorcycle:1.5
+        uberAuto: 2,
+        uberX: 3,
+        uberScooty: 1.5,
+        uberMoto: 1.8,
+        uberComfort: 4,
+        uberHCV: 5,
+        uberPool: 1.2,
+        uberXL: 3.5,
     };
+    
     const fare:{[P in VehicleTypeTypes]:number;} = {
-        auto:Math.round(baseFare.auto + ((distanceTime.distance.value/1000)*perKmRate.auto) + ((distanceTime.duration.value/60)*perMinuteRate.auto)),
-        car:Math.round(baseFare.car + ((distanceTime.distance.value/1000)*perKmRate.car) + ((distanceTime.duration.value/60)*perMinuteRate.car)),
-        motorcycle:Math.round(baseFare.motorcycle + ((distanceTime.distance.value/1000)*perKmRate.motorcycle) + ((distanceTime.duration.value/60)*perMinuteRate.motorcycle))
+        uberAuto:Math.round(baseFare.uberAuto + ((distanceTime.distance.value/1000)*perKmRate.uberAuto) + ((distanceTime.duration.value/60)*perMinuteRate.uberAuto)),
+        uberX:Math.round(baseFare.uberX + ((distanceTime.distance.value/1000)*perKmRate.uberX) + ((distanceTime.duration.value/60)*perMinuteRate.uberX)),
+        uberMoto:Math.round(baseFare.uberMoto + ((distanceTime.distance.value/1000)*perKmRate.uberMoto) + ((distanceTime.duration.value/60)*perMinuteRate.uberMoto)),
+        uberScooty:Math.round(baseFare.uberScooty + ((distanceTime.distance.value/1000)*perKmRate.uberScooty) + ((distanceTime.duration.value/60)*perMinuteRate.uberScooty)),
+        uberComfort:Math.round(baseFare.uberComfort + ((distanceTime.distance.value/1000)*perKmRate.uberComfort) + ((distanceTime.duration.value/60)*perMinuteRate.uberComfort)),
+        uberHCV:Math.round(baseFare.uberHCV + ((distanceTime.distance.value/1000)*perKmRate.uberHCV) + ((distanceTime.duration.value/60)*perMinuteRate.uberHCV)),
+        uberPool:Math.round(baseFare.uberPool + ((distanceTime.distance.value/1000)*perKmRate.uberPool) + ((distanceTime.duration.value/60)*perMinuteRate.uberPool)),
+        uberXL:Math.round(baseFare.uberXL + ((distanceTime.distance.value/1000)*perKmRate.uberXL) + ((distanceTime.duration.value/60)*perMinuteRate.uberXL)),
     };    
     return {fare, distance:distanceTime.distance.value, duration:distanceTime.duration.value};    
 };
