@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
-import { LocationTypes, RideStatusTypes } from "../models/rideModel.js";
-import { createRide, findByIdAndUpdateRide, getFare } from "../config/services/rideModelServices.js";
+import { LocationTypes, RideStatusTypes, RideTypesPopulated } from "../models/rideModel.js";
+import { createRide, findByIdAndUpdateRide, findRideById, getFare } from "../config/services/rideModelServices.js";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
 import crypto from "crypto";
@@ -121,6 +121,29 @@ export const getFareOfTrip = async(req:Request, res:Response, next:NextFunction)
         const faresOfAllTypesOfVehicle = await getFare({pickupLocation, dropoffLocation});
 
         res.status(200).json({success:true, message:"Ride accepted", jsonData:faresOfAllTypesOfVehicle});
+    } catch (error) {
+        next(error);
+    }
+};
+// Start ride by filling passenger otp by driver
+export const startRide = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const {rideID, otp}:{rideID:mongoose.Schema.Types.ObjectId; otp:string;} = req.body;
+        const ride = await findRideById({rideID}, {selectOtp:true});
+
+        if (!ride) return next(new ErrorHandler("Ride not found", 404));
+
+        if (ride.status !== "accepted") return next(new ErrorHandler("Ride is not accepted", 401));
+        if (ride.otp !== otp) return next(new ErrorHandler("Invalid OTP", 401));
+            
+        ride.otp = "";
+        ride.status = "in-progress";
+
+        await ride.save();
+
+        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-started", message:{message:"ride start ho gai hai...."}})
+
+        res.status(200).json({success:true, message:"Ride started", jsonData:ride});
     } catch (error) {
         next(error);
     }
