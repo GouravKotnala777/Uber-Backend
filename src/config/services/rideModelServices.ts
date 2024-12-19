@@ -100,6 +100,26 @@ export const createRide = async({
 
     return newRide;
 };
+// Find ride by id
+export const findRideById = async({
+    rideID
+}:{
+    rideID:mongoose.Schema.Types.ObjectId;
+}, options?:{selectOtp:boolean;}) => {
+    let ride = null;
+    if (options?.selectOtp) {
+        ride = await Ride.findById(rideID)
+        .select("+otp")
+        .populate({model:"User", path:"passengerID", select:"socketID"});
+        //.populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;
+    }
+    else{
+        ride = await Ride.findById(rideID);
+        //.populate({model:"User", path:"passengerID", select:"socketID"})
+        //.populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;
+    }
+    return ride;
+};
 // Find ride by id and update
 export const findByIdAndUpdateRide = async({
     rideID,
@@ -107,14 +127,16 @@ export const findByIdAndUpdateRide = async({
     distance,
     pickupLocation,
     dropoffLocation,
-    status
+    status,
+    otp
 }:{
     rideID:mongoose.Schema.Types.ObjectId;
-    driverID:mongoose.Schema.Types.ObjectId;
+    driverID?:mongoose.Schema.Types.ObjectId;
     distance?:string;
     pickupLocation?:string;
     dropoffLocation?:string;
     status?:RideStatusTypes;
+    otp?:string;
 }, options?:{selectOtp:boolean;}) => {
     let updateRide:RideTypesPopulated|null = null;
     if (options?.selectOtp) {
@@ -123,7 +145,8 @@ export const findByIdAndUpdateRide = async({
             ...(distance&&{distance}),
             ...(pickupLocation&&{pickupLocation}),
             ...(dropoffLocation&&{dropoffLocation}),
-            ...(status&&{status})
+            ...(status&&{status}),
+            ...(otp&&{otp})
         }, {new:true})
         .select("+otp")
         .populate({model:"User", path:"passengerID", select:"socketID"})
@@ -142,3 +165,25 @@ export const findByIdAndUpdateRide = async({
     }
     return updateRide;
 };
+//    const ride = await Ride.findById(rideID);
+
+//    if (!ride) throw new ErrorHandler("Ride not found", 404);
+
+//    ride.status = "in-progress";
+
+//    await ride.save();
+
+//    return ride;
+//};
+//const updateRideController = async(req:Request, res:Response, next:NextFunction) => {
+//    try {
+//        const {rideID}:{rideID:mongoose.Schema.Types.ObjectId;} = req.body;
+//        const ride = await findRideByID2({rideID});
+
+//        ride.status = "in-progress";
+
+//        await ride.save();
+//    } catch (error) {
+//        next(error);        
+//    }
+//};
