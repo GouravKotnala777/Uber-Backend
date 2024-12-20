@@ -3,8 +3,9 @@ import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 import { createDriver, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
-import Driver, { VehicleTypeTypes } from "../models/driverModel.js";
+import { VehicleTypeTypes } from "../models/driverModel.js";
 import User from "../models/userModel.js";
+import { findUser } from "../config/services/userModelServices.js";
 
 // Driver register
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
@@ -47,19 +48,22 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
 // Driver login
 export const driverLogin = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const loginedUser = (req as AuthenticatedRequest).user;
-        const {licenseNumber}:{licenseNumber:string;} = req.body;
+        const {email, password, licenseNumber, vehicleNumber}:{email:string; password:string; licenseNumber:string; vehicleNumber:string;} = req.body;
 
-        if (!loginedUser) return next(new ErrorHandler("Login first", 401));
+        const isUserExists = await findUser({email}, {selectPassword:true});
 
-        const isDriverExists = await Driver.findOne({userID:loginedUser._id});
-
-        if (!isDriverExists) return next(new ErrorHandler("Driver not exists", 404));
-
-        console.log(isDriverExists.licenseNumber, licenseNumber);
+        if (!isUserExists) return next(new ErrorHandler("Wrong email or password1", 402));
         
+        const isPasswordMatched = await isUserExists.comparePassword(password);
 
-        if (isDriverExists.licenseNumber !== licenseNumber) return next(new ErrorHandler("Licence number not matched", 404));
+        if (!isPasswordMatched) return next(new ErrorHandler("Wrong email or password2", 402));
+
+        const isDriverExists = await findSingleDriver({userID:isUserExists._id});
+
+        if (!isDriverExists) return next(new ErrorHandler("Driver not exist", 402));        
+
+        if (isDriverExists?.licenseNumber !== licenseNumber) return next(new ErrorHandler("Licence number not matched", 404));
+        if (isDriverExists?.vehicleDetailes.vehicleNumber !== vehicleNumber) return next(new ErrorHandler("Vehicle number not matched", 404));
         
         const createDriverToken = await isDriverExists.generateToken(isDriverExists._id);
         
@@ -76,9 +80,9 @@ export const driverLogin = async(req:Request, res:Response, next:NextFunction) =
 // My Profile
 export const driverProfile = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const user = (req as AuthenticatedRequest).user;
+        const driver = (req as AuthenticatedRequest).driver;
 
-        const loginedDriver = await findSingleDriver({userID:user._id}, {populateUser:true});
+        const loginedDriver = await findSingleDriver({userID:driver.userID._id}, {populateUser:true});
 
         res.status(200).json({success:true, message:"logined driver profile", jsonData:loginedDriver});
     } catch (error) {

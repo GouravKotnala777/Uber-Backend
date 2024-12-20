@@ -9,6 +9,7 @@ import { findDriverByID, getDriversWithinRadius } from "../config/services/drive
 import { getAddressCoordinate } from "../config/services/map.services.js";
 import { sendMessageToSocketId } from "../socket.js";
 import { findUserByID } from "../config/services/userModelServices.js";
+import { AuthenticatedRequest } from "../middlewares/auth.js";
 
 // Create new ride request
 export const createRideRequest = async(req:Request, res:Response, next:NextFunction) => {
@@ -76,9 +77,12 @@ export function getOTP(num:number){
 // Accept ride request
 export const acceptRideRequest = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {rideID, driverID, status}:{rideID:mongoose.Schema.Types.ObjectId; driverID:mongoose.Schema.Types.ObjectId; status:RideStatusTypes;} = req.body;
+        const {rideID, status}:{rideID:mongoose.Schema.Types.ObjectId; status:RideStatusTypes;} = req.body;
+        const driver = (req as AuthenticatedRequest).driver;
 
-        const acceptedRide = await findByIdAndUpdateRide({rideID, driverID, status}, {selectOtp:true});
+        if (!driver) return next(new ErrorHandler("driverID not found", 402));
+
+        const acceptedRide = await findByIdAndUpdateRide({rideID, driverID:driver._id, status}, {selectOtp:true});
 
         if (!acceptedRide) return next(new ErrorHandler("Internal server error", 500));
 
@@ -86,8 +90,6 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
         console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO (1)");
         console.log({acceptedRide});
         console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO (2)");
-        
-        const driverDetailes = await findDriverByID({driverID});
 
         sendMessageToSocketId({
             socketID:acceptedRide.passengerID.socketID,
@@ -95,10 +97,10 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
             message:{
                 status:acceptedRide.status,
                 otp:acceptedRide.otp,
-                driverName:driverDetailes.userID.name,
-                driverEmail:driverDetailes.userID.email,
-                driverMobile:driverDetailes.userID.mobile,
-                driverGender:driverDetailes.userID.gender,
+                driverName:driver.userID.name,
+                driverEmail:driver.userID.email,
+                driverMobile:driver.userID.mobile,
+                driverGender:driver.userID.gender,
                 //driverUserID:acceptedRide.driverID,
                 licenseNumber:acceptedRide.driverID.licenseNumber,
                 vehicleDetailes:acceptedRide.driverID.vehicleDetailes,
@@ -129,12 +131,17 @@ export const getFareOfTrip = async(req:Request, res:Response, next:NextFunction)
 export const startRide = async(req:Request, res:Response, next:NextFunction) => {
     try {
         const {rideID, otp}:{rideID:mongoose.Schema.Types.ObjectId; otp:string;} = req.body;
+        const driverID = (req as AuthenticatedRequest).driver?._id;
+
+        if (!driverID) return next(new ErrorHandler("driverID not found", 401));
+
         const ride = await findRideById({rideID}, {selectOtp:true});
 
         if (!ride) return next(new ErrorHandler("Ride not found", 404));
 
         if (ride.status !== "accepted") return next(new ErrorHandler("Ride is not accepted", 401));
         if (ride.otp !== otp) return next(new ErrorHandler("Invalid OTP", 401));
+        if (driverID.toString() !== ride.driverID.toString()) return next(new ErrorHandler("You are not riding this ride", 401));
             
         ride.otp = "";
         ride.status = "in-progress";
