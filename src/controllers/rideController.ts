@@ -155,3 +155,37 @@ export const startRide = async(req:Request, res:Response, next:NextFunction) => 
         next(error);
     }
 };
+// End currently active ride by driver
+export const endRide = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        console.log("----------- (1)");
+        
+        const {rideID}:{rideID:mongoose.Schema.Types.ObjectId;} = req.body;
+        console.log("----------- (2)");
+        const driverID = (req as AuthenticatedRequest).driver._id;
+        console.log("----------- (3)");
+        
+        const ride = await findRideById({rideID});
+        console.log("----------- (4)");
+        
+        if (!ride) return next(new ErrorHandler("Ride not found", 404));
+        
+        console.log("----------- (5)");
+        if (ride.status !== "in-progress") return next(new ErrorHandler("Ride has not started", 401));
+        if (ride.driverID.toString() !== driverID.toString()) return next(new ErrorHandler("Your are not driving it", 401));
+        console.log("----------- (6)");
+        
+        ride.status = "completed";
+        
+        await ride.save();
+        console.log("----------- (7)");
+        
+        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-ended", message:{message:"ride complete ho gai hai...."}})
+        console.log("----------- (8)");
+        
+        res.status(200).json({success:true, message:"Ride started", jsonData:ride});
+    } catch (error) {
+        console.log("----------- (9)");
+        next(error);
+    }
+};
