@@ -51,6 +51,7 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
                     duration:newRide.duration,
                     status:newRide.status,
                     otp:newRide.otp,
+                    passengerID:requestingPassenger._id,
                     passengerName:requestingPassenger.name,
                     passengerEmail:requestingPassenger.email,
                     passengerMobile:requestingPassenger.mobile,
@@ -101,7 +102,7 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
                 driverEmail:driver.userID.email,
                 driverMobile:driver.userID.mobile,
                 driverGender:driver.userID.gender,
-                //driverUserID:acceptedRide.driverID,
+                driverID:acceptedRide.driverID,
                 licenseNumber:acceptedRide.driverID.licenseNumber,
                 vehicleDetailes:acceptedRide.driverID.vehicleDetailes,
                 rating:acceptedRide.driverID.rating
