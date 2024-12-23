@@ -3,11 +3,12 @@ import { AuthenticatedRequest } from "../middlewares/auth.js";
 import Chat from "../models/chatModel.js";
 import mongoose from "mongoose";
 import { ErrorHandler } from "../utils/utilityClasses.js";
+import { sendMessageToSocketId } from "../socket.js";
 
 // Create new chat
 export const createChat = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {receiver, content, senderType}:{receiver:mongoose.Schema.Types.ObjectId; content:string; senderType:"user"|"driver"} = req.body;
+        const {receiver, receiverSocketID, content, senderType}:{receiver:mongoose.Schema.Types.ObjectId; receiverSocketID:string; content:string; senderType:"user"|"driver"} = req.body;
         
         const user = senderType === "user" ? (req as AuthenticatedRequest).user : (req as AuthenticatedRequest).driver;
 
@@ -17,6 +18,19 @@ export const createChat = async(req:Request, res:Response, next:NextFunction) =>
             sender:user._id,
             receiver:receiver,
             content
+        });
+
+        if (!newChat) return next(new ErrorHandler("Internal server error", 500));
+
+        sendMessageToSocketId({
+            socketID:receiverSocketID,
+            eventName:"new-message",
+            message:{
+                sender:user._id,
+                receiver:receiver,
+                content,
+                date:newChat.createdAt
+            }
         });
 
         res.status(200).json({success:true, message:"message created", jsonData:newChat});
