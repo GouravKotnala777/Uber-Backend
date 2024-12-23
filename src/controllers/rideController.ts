@@ -87,11 +87,6 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
 
         if (!acceptedRide) return next(new ErrorHandler("Internal server error", 500));
 
-
-        console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO (1)");
-        console.log({acceptedRide});
-        console.log("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOO (2)");
-
         sendMessageToSocketId({
             socketID:acceptedRide.passengerID.socketID,
             eventName:"ride-accepted",
@@ -102,7 +97,8 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
                 driverEmail:driver.userID.email,
                 driverMobile:driver.userID.mobile,
                 driverGender:driver.userID.gender,
-                driverID:acceptedRide.driverID,
+                driverID:driver._id,
+                driverSocketID:driver.userID.socketID,
                 licenseNumber:acceptedRide.driverID.licenseNumber,
                 vehicleDetailes:acceptedRide.driverID.vehicleDetailes,
                 rating:acceptedRide.driverID.rating
