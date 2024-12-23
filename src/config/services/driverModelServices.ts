@@ -37,7 +37,7 @@ export const findDriverByID = async({driverID}:{driverID:mongoose.Schema.Types.O
     if (!driverID) throw(new ErrorHandler("driverID is not found", 404));
 
     const findDriverByID = await Driver.findById(driverID)
-                            .populate({model:"User", path:"userID", select:"name email mobile gender"}) as DriverTypesPopulated;
+                            .populate({model:"User", path:"userID", select:"name email mobile gender socketID"}) as DriverTypesPopulated;
 
     return findDriverByID;
 };
