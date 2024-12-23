@@ -2,7 +2,7 @@ import axios from "axios";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
 
 export const getAddressCoordinate = async(address:string) => {
-    const mapApiKey = process.env.GO_MAPS_API_KEY as string;
+    const mapApiKey = process.env.VITE_GO_MAPS_API_KEY as string;
     const url = `https://maps.gomaps.pro/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${mapApiKey}`;
 
     try {
@@ -26,7 +26,7 @@ export const getAddressCoordinate = async(address:string) => {
 export const getDistanceTime = async({origin, destination}:{origin:string; destination:string;}) => {
     if (!origin || !destination) throw new ErrorHandler("Origin and destination are required", 400);
 
-    const mapApiKey = process.env.GO_MAPS_API_KEY as string;
+    const mapApiKey = process.env.VITE_GO_MAPS_API_KEY as string;
     const url = `https://maps.gomaps.pro/maps/api/distancematrix/json?origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${mapApiKey}`;
 
     try {
@@ -47,7 +47,7 @@ export const getDistanceTime = async({origin, destination}:{origin:string; desti
 export const getAutoCompleteSuggestion = async({input}:{input:string;}) => {
     if (!input) throw new ErrorHandler("Query is required", 400);
 
-    const mapApiKey = process.env.GO_MAPS_API_KEY as string;
+    const mapApiKey = process.env.VITE_GO_MAPS_API_KEY as string;
     const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${mapApiKey}`;
 
     try {
