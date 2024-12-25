@@ -27,10 +27,15 @@ const PORT = process.env.PORT || 8000;
 connectDB();
 
 app.use(cors({
-    origin:[process.env.CLIENT_URL as string],
-    methods:["GET", "POST"],
+    origin:[`${process.env.CLIENT_URL}` as string],
     credentials:true
 }));
+
+app.use(cors({
+    origin:[`${process.env.CLIENT_URL}` as string, "https://ipinfo.io"],
+    credentials: true
+}));
+
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(cookieParser());
