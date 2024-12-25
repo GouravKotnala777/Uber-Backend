@@ -9,8 +9,7 @@ let io:Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>|null;
 export const initializeSocket = (server:HTTPSERVER<typeof IncomingMessage, typeof ServerResponse>) => {
     io = new Server(server, {
         cors:{
-            origin:process.env.CLIENT_URL,
-            methods:["GET", "POST"],
+            origin:[`${process.env.CLIENT_URL}` as string],
             credentials:true
         }
     });
