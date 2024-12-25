@@ -32,6 +32,7 @@ app.use(cors({
         process.env.CLIENT_URL2 as string,
         process.env.CLIENT_URL3 as string,
     ],
+    methods:["GET", "POST"],
     credentials:true
 }));
 app.use(express.json());
