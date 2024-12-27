@@ -55,7 +55,7 @@ export const findUserByIDAndUpdate = async({userID, name, password, mobile, gend
         ...(password&&{password}),
         ...(mobile&&{mobile}),
         ...(gender&&{gender})
-    });
+    }, {new:true});
     if (!updateUser)  throw new ErrorHandler("Update user not found", 404);
     return updateUser;
 };

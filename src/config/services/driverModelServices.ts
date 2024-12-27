@@ -117,6 +117,32 @@ export const isDriverExists = async({userID, licenseNumber, vehicleNumber}:{user
     }
     return searchedAllDriver;
 };
+// Find driver by id and then update
+export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDetailes, availabilityStatus}:{driverID:mongoose.Schema.Types.ObjectId; licenseNumber?:string;
+    vehicleDetailes?:{
+        vehicleNumber?:string;
+        vehicleColor?:string;
+        vehicleModel?:string;
+        vehicleType?:string;};
+        availabilityStatus?:boolean;}, options?:{populateUser:boolean;}) => {
+    if (!driverID && !licenseNumber && !vehicleDetailes) throw new ErrorHandler("Can not pass empty body", 400);
+
+    const findDriver = await Driver.findById(driverID);
+
+    const updatedDriver = await Driver.findByIdAndUpdate(driverID, {
+        vehicleDetailes:{
+            ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber}),
+            ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor}),
+            ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel}),
+            ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
+        },
+        ...(licenseNumber&&{licenseNumber}),
+        ...(availabilityStatus&&{availabilityStatus})
+    }, {new:true});
+    
+    
+    return updatedDriver;
+};
 // Find all available drivers within a given radius
 export const getDriversWithinRadius = async({ltd, lng, radius}:{ltd:number; lng:number; radius:number;}) => {
     if (!ltd || !lng || !radius) throw new ErrorHandler("All fields are required", 400);

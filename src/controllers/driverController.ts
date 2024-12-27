@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
-import { createDriver, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
+import { createDriver, findDriverByID, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
 import { VehicleTypeTypes } from "../models/driverModel.js";
 import User from "../models/userModel.js";
 import { findUser } from "../config/services/userModelServices.js";
@@ -85,6 +85,30 @@ export const driverProfile = async(req:Request, res:Response, next:NextFunction)
         const loginedDriver = await findSingleDriver({userID:driver.userID._id}, {populateUser:true});
 
         res.status(200).json({success:true, message:"logined driver profile", jsonData:loginedDriver});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// Update my driving profile
+export const updateMyDrivingProfile = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, availabilityStatus}:{licenseNumber?:string; vehicleColor?:string; vehicleModel?:string; vehicleNumber?:string; vehicleType?:string; availabilityStatus?:boolean;} = req.body;
+        const driver = (req as AuthenticatedRequest).driver;
+        
+        const findUserAndUpdate = await findDriverByIDAndUpdate({
+            driverID:driver._id,
+            licenseNumber,
+            vehicleDetailes:{
+                vehicleColor,
+                vehicleModel,
+                vehicleNumber,
+                vehicleType
+            },
+            availabilityStatus
+        });
+
+        res.status(200).json({success:true, message:"Your profile updated", jsonData:findUserAndUpdate});
     } catch (error) {
         console.log(error);
         next(error);
