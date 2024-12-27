@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import User from "../../models/userModel.js";
+import User, { UserTypes } from "../../models/userModel.js";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
 
 // Create new user
@@ -12,10 +12,20 @@ export const createUser = async({name, email, password, mobile, gender}:{name:st
     return newUser;
 };
 // Find user by _id
-export const findUserByID = async({userID}:{userID:mongoose.Schema.Types.ObjectId;}) => {
+export const findUserByID = async({userID}:{userID:mongoose.Schema.Types.ObjectId;}, options?:{selectPassword:boolean;}) => {
     if (!userID) throw new ErrorHandler("UserID not found", 404);
-    const findUserById = await User.findById(userID);
-    if (!findUserById)  throw new ErrorHandler("User not found", 404);
+
+    let findUserById:(mongoose.Document<unknown, {}, UserTypes> & UserTypes & Required<{
+        _id: mongoose.Schema.Types.ObjectId;
+    }>)|null = null;
+
+    if (options?.selectPassword) {
+        findUserById = await User.findById(userID).select("+password");
+    }
+    else{
+        findUserById = await User.findById(userID);
+        if (!findUserById)  throw new ErrorHandler("User not found", 404);
+    }
     return findUserById;
 };
 // Find user by email or mobile
@@ -36,6 +46,18 @@ export const findUser = async({email, mobile}:{email?:string; mobile?:string;}, 
         });
     }
     return findUser;
+};
+// Find user by _id and then update
+export const findUserByIDAndUpdate = async({userID, name, password, mobile, gender}:{userID:mongoose.Schema.Types.ObjectId; name?:string; password?:string; mobile?:string; gender?:"male"|"female"|"other";}) => {
+    if (!userID) throw new ErrorHandler("UserID not found", 404);
+    const updateUser = await User.findByIdAndUpdate(userID, {
+        ...(name&&{name}),
+        ...(password&&{password}),
+        ...(mobile&&{mobile}),
+        ...(gender&&{gender})
+    });
+    if (!updateUser)  throw new ErrorHandler("Update user not found", 404);
+    return updateUser;
 };
 // Delete user by _id
 export const deleteUserByID = async({userID}:{userID:mongoose.Schema.Types.ObjectId;}) => {
