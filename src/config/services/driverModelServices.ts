@@ -118,14 +118,15 @@ export const isDriverExists = async({userID, licenseNumber, vehicleNumber}:{user
     return searchedAllDriver;
 };
 // Find driver by id and then update
-export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDetailes, availabilityStatus}:{driverID:mongoose.Schema.Types.ObjectId; licenseNumber?:string;
+export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDetailes, availabilityStatus, image}:{driverID:mongoose.Schema.Types.ObjectId; licenseNumber?:string;
     vehicleDetailes?:{
         vehicleNumber?:string;
         vehicleColor?:string;
         vehicleModel?:string;
         vehicleType?:string;};
-        availabilityStatus?:boolean;}, options?:{populateUser:boolean;}) => {
-    if (!driverID && !licenseNumber && !vehicleDetailes) throw new ErrorHandler("Can not pass empty body", 400);
+        availabilityStatus?:boolean;
+        image?:string;}, options?:{populateUser:boolean;}) => {
+    if (!driverID && !licenseNumber && !vehicleDetailes && !image) throw new ErrorHandler("Can not pass empty body", 400);
 
     const findDriver = await Driver.findById(driverID);
 
@@ -137,7 +138,8 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
             ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
         },
         ...(licenseNumber&&{licenseNumber}),
-        ...(availabilityStatus&&{availabilityStatus})
+        ...(availabilityStatus&&{availabilityStatus}),
+        ...(image&&{image})
     }, {new:true});
     
     

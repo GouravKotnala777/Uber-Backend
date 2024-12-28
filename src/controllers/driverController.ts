@@ -114,3 +114,17 @@ export const updateMyDrivingProfile = async(req:Request, res:Response, next:Next
         next(error);
     }
 };
+// Set/Update my driving profile image
+export const uploadDriverProfileImage = async(req:Request, res:Response, next:NextFunction) => {
+    try {        
+        const image = req.file;
+        const driver = (req as AuthenticatedRequest).driver;
+        
+        const updatedDriverProfile = await findDriverByIDAndUpdate({driverID:driver._id, image:image?.filename});
+
+        res.status(200).json({success:true, message:"Driver profile image uploaded", jsonData:updatedDriverProfile});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};

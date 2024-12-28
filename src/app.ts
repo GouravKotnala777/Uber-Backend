@@ -42,6 +42,7 @@ app.use(cors({
 
 
 // All endpoints
+app.use("/public", express.static("public"));
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/driver", driverRouter);
 app.use("/api/v1/ride", rideRouter);

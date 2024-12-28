@@ -86,3 +86,17 @@ export const updateMyProfile = async(req:Request, res:Response, next:NextFunctio
         next(error);
     }
 };
+// Set/Update my profile image
+export const uploadProfileImage = async(req:Request, res:Response, next:NextFunction) => {
+    try {        
+        const image = req.file;
+        const user = (req as AuthenticatedRequest).user;
+        
+        const updateProfile = await findUserByIDAndUpdate({userID:user._id, image:image?.filename});
+
+        res.status(200).json({success:true, message:"Profile image uploaded", jsonData:updateProfile});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
