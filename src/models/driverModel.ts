@@ -38,6 +38,7 @@ export interface DriverTypesPopulated {
     availabilityStatus:boolean;
     rating:number;
     location:LocationTypes;
+    image?:string;
     createdAt:Date;
     updatedAt:Date;
 
@@ -75,7 +76,8 @@ const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
     location:{
         ltd:Number,
         lng:Number
-    }
+    },
+    image:String
 }, {
     timestamps:true
 });
