@@ -2,8 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
-import { createDriver, findDriverByID, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
-import { VehicleTypeTypes } from "../models/driverModel.js";
+import { createDriver, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
+import Driver, { DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
 import User from "../models/userModel.js";
 import { findUser } from "../config/services/userModelServices.js";
 
@@ -119,10 +119,26 @@ export const uploadDriverProfileImage = async(req:Request, res:Response, next:Ne
     try {        
         const image = req.file;
         const driver = (req as AuthenticatedRequest).driver;
+
+        if (!image) return next(new ErrorHandler("Image not found", 404));
         
-        const updatedDriverProfile = await findDriverByIDAndUpdate({driverID:driver._id, image:image?.filename});
+        const updatedDriverProfile = await findDriverByIDAndUpdate({driverID:driver._id, image:image.filename}, {populateUser:true});
 
         res.status(200).json({success:true, message:"Driver profile image uploaded", jsonData:updatedDriverProfile});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// Remove Driver profile image
+export const removeDriverProfileImage = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const driver = (req as AuthenticatedRequest).driver;
+        
+        const updateProfile = await Driver.findByIdAndUpdate(driver._id, {image:null}, {new:true})
+                            .populate({model:"User", path:"userID", select:"name email mobile gender role socketID"}) as DriverTypesPopulated;
+
+        res.status(200).json({success:true, message:"Profile image removed", jsonData:updateProfile});
     } catch (error) {
         console.log(error);
         next(error);

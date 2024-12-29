@@ -3,6 +3,7 @@ import { createUser, findUser, findUserByID, findUserByIDAndUpdate } from "../co
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
+import User from "../models/userModel.js";
 
 // User register
 export const register = async(req:Request, res:Response, next:NextFunction) => {
@@ -91,10 +92,25 @@ export const uploadProfileImage = async(req:Request, res:Response, next:NextFunc
     try {        
         const image = req.file;
         const user = (req as AuthenticatedRequest).user;
+
+        if (!image) return next(new ErrorHandler("Image not found", 404));
         
-        const updateProfile = await findUserByIDAndUpdate({userID:user._id, image:image?.filename});
+        const updateProfile = await findUserByIDAndUpdate({userID:user._id, image:image.filename});
 
         res.status(200).json({success:true, message:"Profile image uploaded", jsonData:updateProfile});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// Remove my profile image
+export const removeProfileImage = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const user = (req as AuthenticatedRequest).user;
+        
+        const updateProfile = await User.findByIdAndUpdate(user._id, {image:null}, {new:true});        
+
+        res.status(200).json({success:true, message:"Profile image removed", jsonData:updateProfile});
     } catch (error) {
         console.log(error);
         next(error);

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Driver, { DriverTypesPopulated, VehicleTypeTypes } from "../../models/driverModel.js";
+import Driver, { DriverTypes, DriverTypesPopulated, VehicleTypeTypes } from "../../models/driverModel.js";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
 
 // Create driver
@@ -130,17 +130,35 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
 
     const findDriver = await Driver.findById(driverID);
 
-    const updatedDriver = await Driver.findByIdAndUpdate(driverID, {
-        vehicleDetailes:{
-            ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber}),
-            ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor}),
-            ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel}),
-            ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
-        },
-        ...(licenseNumber&&{licenseNumber}),
-        ...(availabilityStatus&&{availabilityStatus}),
-        ...(image&&{image})
-    }, {new:true});
+    let updatedDriver:DriverTypesPopulated|null = null;
+
+    if (options?.populateUser) {
+        updatedDriver = await Driver.findByIdAndUpdate(driverID, {
+            vehicleDetailes:{
+                ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber}),
+                ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor}),
+                ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel}),
+                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
+            },
+            ...(licenseNumber&&{licenseNumber}),
+            ...(availabilityStatus&&{availabilityStatus}),
+            ...(image&&{image})
+        }, {new:true}).populate({model:"User", path:"userID", select:"name email mobile gender role socketID"}) as DriverTypesPopulated;
+    }
+    else{
+        updatedDriver = await Driver.findByIdAndUpdate(driverID, {
+            vehicleDetailes:{
+                ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber}),
+                ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor}),
+                ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel}),
+                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
+            },
+            ...(licenseNumber&&{licenseNumber}),
+            ...(availabilityStatus&&{availabilityStatus}),
+            ...(image&&{image})
+        }, {new:true});
+
+    }
     
     
     return updatedDriver;
