@@ -6,7 +6,7 @@ import upload from "../middlewares/multer.js";
 
 const driverRouter = express.Router();
 
-driverRouter.route("/register").post(driverRegister);
+driverRouter.route("/register").post(isUserAuthenticated, driverRegister);
 driverRouter.route("/login").post(driverLogin);
 driverRouter.route("/me").get(isDriverAuthenticated, driverProfile);
 driverRouter.route("/update").post(isDriverAuthenticated, updateMyDrivingProfile);
