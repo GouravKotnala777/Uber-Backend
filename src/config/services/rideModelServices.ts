@@ -105,7 +105,7 @@ export const findRideById = async({
     rideID
 }:{
     rideID:mongoose.Schema.Types.ObjectId;
-}, options?:{selectOtp:boolean;}) => {
+}, options?:{selectOtp?:boolean; populatePassenger?:boolean;}) => {
     let ride = null;
     if (options?.selectOtp) {
         ride = await Ride.findById(rideID)
@@ -114,9 +114,15 @@ export const findRideById = async({
         //.populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;
     }
     else{
-        ride = await Ride.findById(rideID);
-        //.populate({model:"User", path:"passengerID", select:"socketID"})
-        //.populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;
+        if (options?.populatePassenger) {
+            ride = await Ride.findById(rideID)
+            .populate({model:"User", path:"passengerID", select:"socketID"});
+            //.populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;
+            
+        }
+        else{
+            ride = await Ride.findById(rideID);
+        }
     }
     return ride;
 };
