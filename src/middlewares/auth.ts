@@ -38,7 +38,7 @@ export const isDriverAuthenticated = async(req:Request, res:Response, next:NextF
 
         if (!cookie || cookie === "null") return next(new ErrorHandler("cookie not found", 404));
 
-        const verifyToken = await jsonWebToken.verify(cookie, process.env.JWT_SECRET as string);
+        const verifyToken = await jsonWebToken.verify(cookie, process.env.JWT_SECRET_DRIVER as string);
 
         const findById = await findDriverByID({driverID:verifyToken as ObjectId});
 
