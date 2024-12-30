@@ -11,6 +11,7 @@ import mapsRouter from "./routes/mapRouter.js";
 import cors from "cors";
 import { initializeSocket } from "./socket.js";
 import chatRouter from "./routes/chatRouter.js";
+import paymentRouter from "./routes/paymentRouter.js";
 
 // Dotenv configuration
 config({
@@ -48,6 +49,7 @@ app.use("/api/v1/driver", driverRouter);
 app.use("/api/v1/ride", rideRouter);
 app.use("/api/v1/map", mapsRouter);
 app.use("/api/v1/chat", chatRouter);
+app.use("/api/v1/payment", paymentRouter);
 
 
 // endpoint for testing

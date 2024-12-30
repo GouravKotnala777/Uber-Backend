@@ -162,7 +162,7 @@ export const endRide = async(req:Request, res:Response, next:NextFunction) => {
         const driverID = (req as AuthenticatedRequest).driver._id;
         console.log("----------- (3)");
         
-        const ride = await findRideById({rideID});
+        const ride = await findRideById({rideID}, {populatePassenger:true});
         console.log("----------- (4)");
         
         if (!ride) return next(new ErrorHandler("Ride not found", 404));
@@ -177,10 +177,10 @@ export const endRide = async(req:Request, res:Response, next:NextFunction) => {
         await ride.save();
         console.log("----------- (7)");
         
-        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-ended", message:{message:"ride complete ho gai hai...."}})
+        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-ended", message:{rideID:ride._id}});        
         console.log("----------- (8)");
         
-        res.status(200).json({success:true, message:"Ride started", jsonData:ride});
+        res.status(200).json({success:true, message:"Ride ended", jsonData:ride});
     } catch (error) {
         console.log("----------- (9)");
         next(error);
