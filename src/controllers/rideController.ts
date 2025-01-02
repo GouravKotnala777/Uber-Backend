@@ -186,7 +186,7 @@ export const cancelRide = async(req:Request, res:Response, next:NextFunction) =>
         
         if (!ride) return next(new ErrorHandler("Ride not found", 404));
         
-        if (ride.status !== "in-progress") return next(new ErrorHandler("Ride has not started", 401));
+        if (ride.status === "cancelled" || ride.status === "completed" || ride.status === "requested") return next(new ErrorHandler("Ride has not cancellable", 401));
         if (ride.driverID.toString() !== driverID.toString()) return next(new ErrorHandler("Your are not driving it", 401));
         
         ride.status = "cancelled";
