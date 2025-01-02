@@ -23,6 +23,8 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
             vehicleType:VehicleTypeTypes;
         } = req.body;
 
+        console.log(pickupLocation, dropoffLocation);
+        
         const newRide = await createRide({
             passengerID, pickupLocation, dropoffLocation, vehicleType
         });
@@ -30,6 +32,10 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
         //-------------------------------------const pickupCoordiinates = await getAddressCoordinate(pickupLocation.address);
         //-------------------------------------const driversInRadius = await getDriversWithinRadius({ltd:pickupCoordiinates.ltd, lng:pickupCoordiinates.lng, radius:1});
         const driversInRadius = await getDriversWithinRadius({ltd:pickupLocation.latitude, lng:pickupLocation.longitude, radius:1});
+
+        console.log(driversInRadius.map((i) => ({driverID:i._id, driverName:i.userID.name, driverSocketID:i.userID.socketID})));
+        
+
         newRide.otp = "";
 
         const requestingPassenger = await findUserByID({userID:newRide.passengerID as mongoose.Schema.Types.ObjectId});
