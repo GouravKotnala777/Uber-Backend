@@ -128,6 +128,7 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
         image?:string;}, options?:{populateUser:boolean;}) => {
     if (!driverID && !licenseNumber && !vehicleDetailes && !image) throw new ErrorHandler("Can not pass empty body", 400);
 
+
     const findDriver = await Driver.findById(driverID);
 
     let updatedDriver:DriverTypesPopulated|null = null;
@@ -141,7 +142,7 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
                 ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
             },
             ...(licenseNumber&&{licenseNumber}),
-            ...(availabilityStatus&&{availabilityStatus}),
+            ...((availabilityStatus === true || availabilityStatus === false)&&{availabilityStatus}),
             ...(image&&{image})
         }, {new:true}).populate({model:"User", path:"userID", select:"name email mobile gender role socketID"}) as DriverTypesPopulated;
     }
@@ -154,7 +155,7 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
                 ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
             },
             ...(licenseNumber&&{licenseNumber}),
-            ...(availabilityStatus&&{availabilityStatus}),
+            ...((availabilityStatus === true || availabilityStatus === false)&&{availabilityStatus}),
             ...(image&&{image})
         }, {new:true});
 
@@ -164,15 +165,17 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
     return updatedDriver;
 };
 // Find all available drivers within a given radius
-export const getDriversWithinRadius = async({ltd, lng, radius}:{ltd:number; lng:number; radius:number;}) => {
-    if (!ltd || !lng || !radius) throw new ErrorHandler("All fields are required", 400);
+export const getDriversWithinRadius = async({ltd, lng, radius, vehicleType}:{ltd:number; lng:number; radius:number; vehicleType:VehicleTypeTypes;}) => {
+    if (!ltd || !lng || !radius || !vehicleType) throw new ErrorHandler("All fields are required", 400);
 
     const drivers = await Driver.find({
         location:{
             $geoWithin:{
                 $centerSphere:[[ltd, lng], radius/6371]
             }
-        }
+        },
+        availabilityStatus:true,
+        "vehicleDetailes.vehicleType":vehicleType
     }).populate({model:"User", path:"userID", select:"_id name email mobile gender role socketID"}) as DriverTypesPopulated[];
     return drivers;
 };
