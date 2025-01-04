@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
-import { LocationTypes, RideStatusTypes, RideTypesPopulated } from "../models/rideModel.js";
+import Ride, { LocationTypes, RideStatusTypes, RideTypesPopulated } from "../models/rideModel.js";
 import { createRide, findByIdAndUpdateRide, findRideById, getFare } from "../config/services/rideModelServices.js";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
@@ -196,6 +196,56 @@ export const cancelRide = async(req:Request, res:Response, next:NextFunction) =>
         sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-cancelled", message:{rideID:ride._id}});        
         
         res.status(200).json({success:true, message:"You cancelled this ride", jsonData:ride});
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Dashboard (admin only)
+export const getAllRides = async(req:Request<{}, {}, {}, {
+    driverID?:mongoose.Schema.Types.ObjectId;
+    pickUpLatitude?:string;
+    pickUpLongitude?:string;
+    dropoffLatitude?:string;
+    dropoffLongitude?:string;
+    status?:string;
+    startDate?:string;
+    endDate?:string;
+}>, res:Response, next:NextFunction) => {
+    try {
+        const {
+            driverID,
+            pickUpLatitude,
+            pickUpLongitude,
+            dropoffLatitude,
+            dropoffLongitude,
+            status,
+            startDate,
+            endDate
+        } = req.query;
+        
+        if (startDate && endDate) {
+            console.log({startDate, endDate});
+            console.log({startDate:new Date(startDate), endDate:new Date(endDate)});
+        }
+
+        
+        
+        const rides = await Ride.find({
+            ...(driverID&&{driverID}),
+            ...(pickUpLatitude && pickUpLongitude && {pickupLocation:{
+                ...(pickUpLatitude&&{latitude:Number(pickUpLatitude)}),
+                ...(pickUpLongitude&&{longitude:Number(pickUpLongitude)}),
+            }}),
+            ...(dropoffLatitude && dropoffLongitude && {dropoffLocation:{
+                ...(dropoffLatitude&&{latitude:Number(dropoffLatitude)}),
+                ...(dropoffLongitude&&{longitude:Number(dropoffLongitude)}),
+            }}),
+            ...(status&&{status}),
+            ...((startDate || endDate )&&{createdAt:{...(startDate&&{$gte:new Date(startDate)}), ...(endDate&&{$lte:new Date(endDate)})}})
+        }).populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated[];
+
+        res.status(200).json({success:true, message:"All rides", jsonData:rides});
     } catch (error) {
         next(error);
     }
