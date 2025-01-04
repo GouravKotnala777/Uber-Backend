@@ -106,7 +106,7 @@ export const updateMyDrivingProfile = async(req:Request, res:Response, next:Next
                 vehicleType
             },
             availabilityStatus
-        });
+        }, {populateUser:true});
 
         res.status(200).json({success:true, message:"Your profile updated", jsonData:findUserAndUpdate});
     } catch (error) {
