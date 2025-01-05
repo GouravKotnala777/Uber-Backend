@@ -38,11 +38,10 @@ export const login = async(req:Request, res:Response, next:NextFunction) => {
         const createToken = await isUserExists.generateToken(isUserExists._id);
 
         //res.cookie("userToken", createToken, {httpOnly:true, secure:true, sameSite:"none"})
-        res.cookie("userToken", createToken, cookieOptions);
 
         console.log({createToken});
 
-        res.status(200).json({success:true, message:"register successful", jsonData:isUserExists})
+        res.status(200).cookie("userToken", createToken, cookieOptions).json({success:true, message:"register successful", jsonData:isUserExists})
     } catch (error) {
         console.log(error);
         next(error);
@@ -111,6 +110,17 @@ export const removeProfileImage = async(req:Request, res:Response, next:NextFunc
         const updateProfile = await User.findByIdAndUpdate(user._id, {image:null}, {new:true});        
 
         res.status(200).json({success:true, message:"Profile image removed", jsonData:updateProfile});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// User logout
+export const logout = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        //const user = (req as AuthenticatedRequest).user;
+
+        res.status(200).cookie("userToken", "", {httpOnly:true, secure:true, sameSite:"none", expires:new Date(0)}).json({success:true, message:"Logout successfull", jsonData:{}});
     } catch (error) {
         console.log(error);
         next(error);

@@ -144,3 +144,14 @@ export const removeDriverProfileImage = async(req:Request, res:Response, next:Ne
         next(error);
     }
 };
+// Driver logout
+export const driverLogout = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        //const driver = (req as AuthenticatedRequest).driver;
+
+        res.status(200).cookie("driverToken", "", {httpOnly:true, secure:true, sameSite:"none", expires:new Date(0)}).json({success:true, message:"Logout successfull", jsonData:{}});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
