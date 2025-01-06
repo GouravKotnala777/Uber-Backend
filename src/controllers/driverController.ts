@@ -3,7 +3,7 @@ import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 import { createDriver, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
-import Driver, { DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
+import Driver, { DriverTypes, DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
 import User from "../models/userModel.js";
 import { findUser } from "../config/services/userModelServices.js";
 
@@ -150,6 +150,50 @@ export const driverLogout = async(req:Request, res:Response, next:NextFunction) 
         //const driver = (req as AuthenticatedRequest).driver;
 
         res.status(200).cookie("driverToken", "", {httpOnly:true, secure:true, sameSite:"none", expires:new Date(0)}).json({success:true, message:"Logout successfull", jsonData:{}});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+
+
+// Fetch all drivers for dashboard (admin only) 
+export const getAllDrivers = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        //const driver = (req as AuthenticatedRequest).driver;
+        const {availabilityStatus, rating, fromDate, upToDate}:{
+            rating?:string; availabilityStatus?:string; fromDate?:string; upToDate?:string;
+        } = req.query;
+
+        const allDriversByQueries = await Driver.find({
+            ...(availabilityStatus&&{
+                availabilityStatus:availabilityStatus === "true"?true:false
+            }),
+            ...(fromDate&&upToDate&&{
+                createdAt:{$gte:fromDate, $lte:upToDate}
+            }),
+            ...(rating&&{rating})
+        }).populate({model:"User", path:"userID", select:"_id gender"}) as DriverTypesPopulated[];
+
+        const allDrivers = await Driver.find().populate({model:"User", path:"userID", select:"_id gender"}) as DriverTypesPopulated[];;
+        const driversAvailablity = {
+            available:allDrivers.filter((i) => i.availabilityStatus === true).length,
+            unavailable:allDrivers.filter((i) => i.availabilityStatus === false).length,
+        };
+        const driversGender = {
+            male:allDrivers.filter((i) => i.userID.gender === "male").length,
+            female:allDrivers.filter((i) => i.userID.gender === "female").length,
+            other:allDrivers.filter((i) => i.userID.gender === "other").length
+        };
+        const driverRatings = {
+            "0 star":allDrivers.filter((i) => i.rating === 0).length,
+            "1 star":allDrivers.filter((i) => i.rating === 1).length,
+            "2 stars":allDrivers.filter((i) => i.rating === 2).length,
+            "3 stars":allDrivers.filter((i) => i.rating === 3).length,
+            "4 stars":allDrivers.filter((i) => i.rating === 4).length,
+            "5 stars":allDrivers.filter((i) => i.rating === 5).length
+        };
+        res.status(200).json({success:true, message:"All fetched drivers", jsonData:{allDriversByQueries, driversAvailablity, driversGender, driverRatings}});
     } catch (error) {
         console.log(error);
         next(error);
