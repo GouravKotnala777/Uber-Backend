@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Model } from "mongoose";
 
 export type PaymentMethodTypes = "cash"|"card"|"wallet";
 export type PaymentStatusTypes = "pending"|"completed"|"failed";
@@ -12,7 +12,7 @@ export interface PaymentTypes{
     updatedAt:Date;
 };
 
-const paymentSchema = new mongoose.Schema({
+const paymentSchema = new mongoose.Schema<PaymentTypes>({
     rideID:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Ride",
@@ -36,6 +36,6 @@ const paymentSchema = new mongoose.Schema({
     }
 }, {timestamps:true});
 
-const paymentModel = mongoose.model("Payment", paymentSchema);
+const paymentModel:Model<PaymentTypes> = mongoose.models.Payment || mongoose.model<PaymentTypes>("Payment", paymentSchema);
 
 export default paymentModel;

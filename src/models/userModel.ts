@@ -72,6 +72,6 @@ userSchema.methods.verifyToken = async function(token:string) {
 };
 
 
-const userModel:Model<UserTypes> = mongoose.models.UserTypes || mongoose.model<UserTypes>("User", userSchema);
+const userModel:Model<UserTypes> = mongoose.models.User || mongoose.model<UserTypes>("User", userSchema);
 
 export default userModel;

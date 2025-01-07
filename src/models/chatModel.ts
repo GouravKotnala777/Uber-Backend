@@ -25,6 +25,6 @@ const chatSchema = new mongoose.Schema<ChatTypes>({
     }
 }, {timestamps:true});
 
-const chatModel:Model<ChatTypes> = mongoose.models.Chats || mongoose.model<ChatTypes>("Chat", chatSchema);
+const chatModel:Model<ChatTypes> = mongoose.models.Chat || mongoose.model<ChatTypes>("Chat", chatSchema);
 
 export default chatModel;
