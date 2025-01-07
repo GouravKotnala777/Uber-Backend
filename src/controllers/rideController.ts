@@ -91,6 +91,7 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
             socketID:acceptedRide.passengerID.socketID,
             eventName:"ride-accepted",
             message:{
+                rideID:rideID,
                 status:acceptedRide.status,
                 otp:acceptedRide.otp,
                 driverName:driver.userID.name,
