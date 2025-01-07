@@ -12,6 +12,7 @@ import cors from "cors";
 import { initializeSocket } from "./socket.js";
 import chatRouter from "./routes/chatRouter.js";
 import paymentRouter from "./routes/paymentRouter.js";
+import reviewRouter from "./routes/reviewRouter.js";
 
 // Dotenv configuration
 config({
@@ -50,6 +51,7 @@ app.use("/api/v1/ride", rideRouter);
 app.use("/api/v1/map", mapsRouter);
 app.use("/api/v1/chat", chatRouter);
 app.use("/api/v1/payment", paymentRouter);
+app.use("/api/v1/review", reviewRouter);
 
 
 // endpoint for testing
