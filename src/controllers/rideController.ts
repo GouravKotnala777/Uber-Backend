@@ -11,6 +11,40 @@ import { sendMessageToSocketId } from "../socket.js";
 import { findUserByID } from "../config/services/userModelServices.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 
+// Get my rides as passenger (except with requested status)
+export const myAllPastRidesPassenger = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const userID = (req as AuthenticatedRequest).user._id;
+
+        const myAllRides = await Ride.find({
+            passengerID:userID,
+            status:{
+                $ne:"requested"
+            }
+        }).populate({model:"Driver", path:"driverID"}) as RideTypesPopulated[];
+
+        res.status(200).json({success:true, message:"All rides", jsonData:myAllRides});
+    } catch (error) {
+        next(error);
+    }
+};
+// Get my rides as driver (except with requested status)
+export const myAllPastRidesDriver = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const driverID = (req as AuthenticatedRequest).driver._id;
+
+        const myAllRides = await Ride.find({
+            driverID,
+            status:{
+                $ne:"requested"
+            }
+        }) as RideTypesPopulated[];
+
+        res.status(200).json({success:true, message:"All rides", jsonData:myAllRides});
+    } catch (error) {
+        next(error);
+    }
+};
 // Create new ride request
 export const createRideRequest = async(req:Request, res:Response, next:NextFunction) => {
     try {
