@@ -15,10 +15,7 @@ export const findDriverAllReviews = async(req:Request, res:Response, next:NextFu
             driverID
         }).populate({model:"User", path:"passengerID", select:"image"}) as ReviewTypesPopulated[];
 
-        const isReviewExist = driverAllReviews.find((review) => review.rideID?.toString() === rideID);
-
-        console.log({driverAllReviews, isReviewExist});
-        
+        const isReviewExist = driverAllReviews.find((review) => review.rideID?.toString() === rideID);        
 
         res.status(200).json({success:true, message:"Driver all reviews", jsonData:{driverAllReviews, isReviewExist}});
     } catch (error) {
