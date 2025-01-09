@@ -50,7 +50,12 @@ const reviewSchema = new mongoose.Schema<ReviewTypes|ReviewTypesPopulated>({
     },
     comment:{
         type:String,
-        maxlength:[40, "maximum words for cumment is 40"]
+        validate:{
+            validator:function(value:string) {
+                return value.split(" ").length <= 40
+            },
+            message:"Maximum words for comment is 40"
+        }
     }
 }, {timestamps:true});
 
