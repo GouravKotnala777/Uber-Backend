@@ -13,6 +13,7 @@ import { initializeSocket } from "./socket.js";
 import chatRouter from "./routes/chatRouter.js";
 import paymentRouter from "./routes/paymentRouter.js";
 import reviewRouter from "./routes/reviewRouter.js";
+import { PORT } from "./utils/constants.js";
 
 // Dotenv configuration
 config({
@@ -23,7 +24,7 @@ config({
 
 const app = express();
 const server  = http.createServer(app);
-const PORT = process.env.PORT || 8000;
+
 
 // Database connection
 connectDB();

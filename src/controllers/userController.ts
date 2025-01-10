@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { createUser, findUser, findUserByID, findUserByIDAndUpdate } from "../config/services/userModelServices.js";
 import { ErrorHandler, sendToken } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
-import { cookieOptions } from "../utils/constants.js";
+import { cookieOptions, USER_TOKEN_NAME } from "../utils/constants.js";
 import User from "../models/userModel.js";
 import { LoginFormTypes, RegisterFormTypes, UpdateMyProfileFormTypes } from "../utils/types.js";
 
@@ -17,7 +17,7 @@ export const register = async(req:Request, res:Response, next:NextFunction) => {
 
         const createNewUser = await createUser({name:firstName.concat(lastName), email, password, mobile, gender});
 
-        await sendToken(res, createNewUser, "userToken");
+        await sendToken(res, createNewUser, USER_TOKEN_NAME);
         res.status(200).json({success:true, message:"register successful", jsonData:createNewUser});
     } catch (error) {
         console.log(error);
@@ -37,10 +37,10 @@ export const login = async(req:Request, res:Response, next:NextFunction) => {
 
         if (!isPasswordMatched) return next(new ErrorHandler("Wrong email or password2", 402));
 
-        await sendToken(res, isUserExists, "userToken");
+        await sendToken(res, isUserExists, USER_TOKEN_NAME);
         //const createToken = await isUserExists.generateToken(isUserExists._id);
 
-        //res.cookie("userToken", createToken, {httpOnly:true, secure:true, sameSite:"none"})
+        //res.cookie(USER_TOKEN_NAME, createToken, {httpOnly:true, secure:true, sameSite:"none"})
 
         res.status(200).json({success:true, message:"register successful", jsonData:isUserExists})
     } catch (error) {
@@ -121,7 +121,7 @@ export const logout = async(req:Request, res:Response, next:NextFunction) => {
     try {
         //const user = (req as AuthenticatedRequest).user;
 
-        res.status(200).cookie("userToken", "", {httpOnly:true, secure:true, sameSite:"none", expires:new Date(0)}).json({success:true, message:"Logout successfull", jsonData:{}});
+        res.status(200).cookie(USER_TOKEN_NAME, "", {httpOnly:true, secure:true, sameSite:"none", expires:new Date(0)}).json({success:true, message:"Logout successfull", jsonData:{}});
     } catch (error) {
         console.log(error);
         next(error);

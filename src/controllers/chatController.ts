@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { sendMessageToSocketId } from "../socket.js";
 import { CreateChatFormTypes } from "../utils/types.js";
+import { NEW_MESSAGE } from "../utils/constants.js";
 
 // Create new chat
 export const createChat = async(req:Request, res:Response, next:NextFunction) => {
@@ -25,7 +26,7 @@ export const createChat = async(req:Request, res:Response, next:NextFunction) =>
 
         sendMessageToSocketId({
             socketID:receiverSocketID,
-            eventName:"new-message",
+            eventName:NEW_MESSAGE,
             message:{
                 sender:user._id,
                 receiver:receiver,

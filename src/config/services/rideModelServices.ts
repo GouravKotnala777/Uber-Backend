@@ -5,6 +5,7 @@ import { findAllDrivers } from "./driverModelServices.js";
 import { getDistanceTime } from "./map.services.js";
 import { getOTP } from "../../controllers/rideController.js";
 import { RideLocationTypes, RideStatusTypes, RideTypesPopulated, VehicleTypeTypes } from "../../utils/types.js";
+import { baseFare, perKmRate, perMinuteRate } from "../../utils/constants.js";
 
 // Calculate fare
 export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:string; dropoffLocation:string;}) => {   
@@ -24,39 +25,7 @@ export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:s
         status:"OK"
       }
 
-      const baseFare = {
-        uberAuto: 30,
-        uberX: 50,
-        uberScooty: 20,
-        uberMoto: 25,
-        uberComfort: 70,
-        uberHCV: 100,
-        uberPool: 40,
-        uberXL: 80,
-    };
-    
-    const perKmRate = {
-        uberAuto: 10,
-        uberX: 15,
-        uberScooty: 8,
-        uberMoto: 9,
-        uberComfort: 20,
-        uberHCV: 25,
-        uberPool: 7,
-        uberXL: 18,
-    };
-    
-    const perMinuteRate = {
-        uberAuto: 2,
-        uberX: 3,
-        uberScooty: 1.5,
-        uberMoto: 1.8,
-        uberComfort: 4,
-        uberHCV: 5,
-        uberPool: 1.2,
-        uberXL: 3.5,
-    };
-    
+ 
     const fare:{[P in VehicleTypeTypes]:number;} = {
         uberAuto:Math.round(baseFare.uberAuto + ((distanceTime.distance.value/1000)*perKmRate.uberAuto) + ((distanceTime.duration.value/60)*perMinuteRate.uberAuto)),
         uberX:Math.round(baseFare.uberX + ((distanceTime.distance.value/1000)*perKmRate.uberX) + ((distanceTime.duration.value/60)*perMinuteRate.uberX)),

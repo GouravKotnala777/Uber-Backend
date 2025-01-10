@@ -3,6 +3,7 @@ import {DefaultEventsMap, Server} from "socket.io";
 import User from "./models/userModel.js";
 import Driver from "./models/driverModel.js";
 import { ErrorHandler } from "./utils/utilityClasses.js";
+import { DISCONNECT, JOIN, NEW_CONNECTION, UPDATE_DRIVER_LOCATION } from "./utils/constants.js";
 
 let io:Server<DefaultEventsMap, DefaultEventsMap, DefaultEventsMap, any>|null;
 
@@ -19,10 +20,10 @@ export const initializeSocket = (server:HTTPSERVER<typeof IncomingMessage, typeo
         }
     });
 
-    io.on("connection", (socket) => {
+    io.on(NEW_CONNECTION, (socket) => {
         console.log(`client connected ${socket.id}`);
 
-        socket.on("join", async({userID, userType}:{userID:string; userType:"user"|"driver"|"admin";}) => {            
+        socket.on(JOIN, async({userID, userType}:{userID:string; userType:"user"|"driver"|"admin";}) => {            
             console.log(`${userID} joined as ${userType}`);
             
             if (userType === "user") {
@@ -37,7 +38,7 @@ export const initializeSocket = (server:HTTPSERVER<typeof IncomingMessage, typeo
             }
         });
 
-        socket.on("update-driver-location", async(data:{
+        socket.on(UPDATE_DRIVER_LOCATION, async(data:{
             message:{
                 passengerSocketID:string;
                 driverID:string;
@@ -57,7 +58,7 @@ export const initializeSocket = (server:HTTPSERVER<typeof IncomingMessage, typeo
             io?.to(passengerSocketID).emit(eventName, {driverID, location});
         });
 
-        socket.on("disconnect", () => {
+        socket.on(DISCONNECT, () => {
             console.log(`client disconnected ${socket.id}`);
         });
     });

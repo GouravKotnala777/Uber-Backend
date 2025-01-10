@@ -10,6 +10,7 @@ import { sendMessageToSocketId } from "../socket.js";
 import { findUserByID } from "../config/services/userModelServices.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { AcceptRideRequestFormTypes, CreateRideRequestFormTypes, GetAllRidesQueryTypes, RideTypesPopulated, StartRideRequestFormTypes } from "../utils/types.js";
+import { NEW_RIDE, RIDE_ACCEPTED, RIDE_CANCELLED, RIDE_ENDED, RIDE_STARTED } from "../utils/constants.js";
 
 // Get my rides as passenger (except with requested status)
 export const myAllPastRidesPassenger = async(req:Request, res:Response, next:NextFunction) => {
@@ -70,7 +71,7 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
         driversInRadius.map((driver) => {
             sendMessageToSocketId({
                 socketID:driver.userID.socketID,
-                eventName:"new-ride",
+                eventName:NEW_RIDE,
                 message:{
                     _id:newRide._id,
                     pickupLocation:newRide.pickupLocation,
@@ -118,7 +119,7 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
 
         sendMessageToSocketId({
             socketID:acceptedRide.passengerID.socketID,
-            eventName:"ride-accepted",
+            eventName:RIDE_ACCEPTED,
             message:{
                 rideID:rideID,
                 status:acceptedRide.status,
@@ -175,7 +176,7 @@ export const startRide = async(req:Request, res:Response, next:NextFunction) => 
 
         await ride.save();
 
-        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-started", message:{message:"ride start ho gai hai...."}})
+        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:RIDE_STARTED, message:{message:"ride start ho gai hai...."}})
 
         res.status(200).json({success:true, message:"Ride started", jsonData:ride});
     } catch (error) {
@@ -199,7 +200,7 @@ export const endRide = async(req:Request, res:Response, next:NextFunction) => {
         
         await ride.save();
         
-        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-ended", message:{rideID:ride._id}});        
+        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:RIDE_ENDED, message:{rideID:ride._id}});        
         
         res.status(200).json({success:true, message:"Ride ended", jsonData:ride});
     } catch (error) {
@@ -223,7 +224,7 @@ export const cancelRide = async(req:Request, res:Response, next:NextFunction) =>
         
         await ride.save();
         
-        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:"ride-cancelled", message:{rideID:ride._id}});        
+        sendMessageToSocketId({socketID:(ride as RideTypesPopulated).passengerID.socketID, eventName:RIDE_CANCELLED, message:{rideID:ride._id}});        
         
         res.status(200).json({success:true, message:"You cancelled this ride", jsonData:ride});
     } catch (error) {

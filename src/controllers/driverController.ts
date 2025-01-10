@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { ErrorHandler, sendToken } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
-import { cookieOptions } from "../utils/constants.js";
+import { cookieOptions, DRIVER_TOKEN_NAME } from "../utils/constants.js";
 import { createDriver, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
 import Driver from "../models/driverModel.js";
 import User from "../models/userModel.js";
@@ -33,7 +33,7 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
             vehicleType
         });
 
-        await sendToken(res, createNewDriver, "driverToken");
+        await sendToken(res, createNewDriver, DRIVER_TOKEN_NAME);
 
         res.status(200).json({success:true, message:"Driver register successful", jsonData:createNewDriver})
     } catch (error) {
@@ -63,8 +63,8 @@ export const driverLogin = async(req:Request, res:Response, next:NextFunction) =
         
         //const createDriverToken = await isDriverExists.generateToken(isDriverExists._id);
         
-        await sendToken(res, isDriverExists, "driverToken");
-        //res.cookie("driverToken", createDriverToken, cookieOptions);
+        await sendToken(res, isDriverExists, DRIVER_TOKEN_NAME);
+        //res.cookie(DRIVER_TOKEN_NAME, createDriverToken, cookieOptions);
 
         //console.log({createDriverToken});
 
@@ -146,7 +146,7 @@ export const driverLogout = async(req:Request, res:Response, next:NextFunction) 
     try {
         //const driver = (req as AuthenticatedRequest).driver;
 
-        res.status(200).cookie("driverToken", "", {httpOnly:true, secure:true, sameSite:"none", expires:new Date(0)}).json({success:true, message:"Logout successfull", jsonData:{}});
+        res.status(200).cookie(DRIVER_TOKEN_NAME, "", {httpOnly:true, secure:true, sameSite:"none", expires:new Date(0)}).json({success:true, message:"Logout successfull", jsonData:{}});
     } catch (error) {
         console.log(error);
         next(error);
