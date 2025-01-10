@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ErrorHandler } from "../utils/utilityClasses.js";
+import { ErrorHandler, sendToken } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 import { createDriver, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
@@ -33,6 +33,8 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
             vehicleType
         });
 
+        await sendToken(res, createNewDriver, "driverToken");
+
         res.status(200).json({success:true, message:"Driver register successful", jsonData:createNewDriver})
     } catch (error) {
         console.log(error);
@@ -59,11 +61,12 @@ export const driverLogin = async(req:Request, res:Response, next:NextFunction) =
         if (isDriverExists?.licenseNumber !== licenseNumber) return next(new ErrorHandler("Licence number not matched", 404));
         if (isDriverExists?.vehicleDetailes.vehicleNumber !== vehicleNumber) return next(new ErrorHandler("Vehicle number not matched", 404));
         
-        const createDriverToken = await isDriverExists.generateToken(isDriverExists._id);
+        //const createDriverToken = await isDriverExists.generateToken(isDriverExists._id);
         
-        res.cookie("driverToken", createDriverToken, cookieOptions);
+        await sendToken(res, isDriverExists, "driverToken");
+        //res.cookie("driverToken", createDriverToken, cookieOptions);
 
-        console.log({createDriverToken});
+        //console.log({createDriverToken});
 
         res.status(200).json({success:true, message:"Driver login successful", jsonData:isDriverExists})
     } catch (error) {

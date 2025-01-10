@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { createUser, findUser, findUserByID, findUserByIDAndUpdate } from "../config/services/userModelServices.js";
-import { ErrorHandler } from "../utils/utilityClasses.js";
+import { ErrorHandler, sendToken } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 import User from "../models/userModel.js";
@@ -17,6 +17,7 @@ export const register = async(req:Request, res:Response, next:NextFunction) => {
 
         const createNewUser = await createUser({name:firstName.concat(lastName), email, password, mobile, gender});
 
+        await sendToken(res, createNewUser, "userToken");
         res.status(200).json({success:true, message:"register successful", jsonData:createNewUser});
     } catch (error) {
         console.log(error);
@@ -36,13 +37,12 @@ export const login = async(req:Request, res:Response, next:NextFunction) => {
 
         if (!isPasswordMatched) return next(new ErrorHandler("Wrong email or password2", 402));
 
-        const createToken = await isUserExists.generateToken(isUserExists._id);
+        await sendToken(res, isUserExists, "userToken");
+        //const createToken = await isUserExists.generateToken(isUserExists._id);
 
         //res.cookie("userToken", createToken, {httpOnly:true, secure:true, sameSite:"none"})
 
-        console.log({createToken});
-
-        res.status(200).cookie("userToken", createToken, cookieOptions).json({success:true, message:"register successful", jsonData:isUserExists})
+        res.status(200).json({success:true, message:"register successful", jsonData:isUserExists})
     } catch (error) {
         console.log(error);
         next(error);
