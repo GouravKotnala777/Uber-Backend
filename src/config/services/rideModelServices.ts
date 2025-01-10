@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import Ride, { LocationTypes, RideStatusTypes, RideTypesPopulated } from "../../models/rideModel.js";
+import Ride from "../../models/rideModel.js";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
 import { findAllDrivers } from "./driverModelServices.js";
 import { getDistanceTime } from "./map.services.js";
-import { VehicleTypeTypes } from "../../models/driverModel.js";
 import { getOTP } from "../../controllers/rideController.js";
+import { RideLocationTypes, RideStatusTypes, RideTypesPopulated, VehicleTypeTypes } from "../../utils/types.js";
 
 // Calculate fare
 export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:string; dropoffLocation:string;}) => {   
@@ -77,8 +77,8 @@ export const createRide = async({
     vehicleType
 }:{
     passengerID:mongoose.Schema.Types.ObjectId;
-    pickupLocation:LocationTypes;
-    dropoffLocation:LocationTypes;
+    pickupLocation:RideLocationTypes;
+    dropoffLocation:RideLocationTypes;
     vehicleType:VehicleTypeTypes;
 }) => {
 

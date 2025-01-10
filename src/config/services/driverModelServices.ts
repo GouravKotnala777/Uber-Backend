@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import Driver, { DriverTypes, DriverTypesPopulated, VehicleTypeTypes } from "../../models/driverModel.js";
+import Driver from "../../models/driverModel.js";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
+import { DriverTypesPopulated, VehicleTypeTypes } from "../../utils/types.js";
 
 // Create driver
 export const createDriver = async({licenseNumber, userID, vehicleColor, vehicleModel, vehicleNumber, vehicleType}:{

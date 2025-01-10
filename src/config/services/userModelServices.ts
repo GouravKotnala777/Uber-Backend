@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
-import User, { UserTypes } from "../../models/userModel.js";
+import User from "../../models/userModel.js";
 import { ErrorHandler } from "../../utils/utilityClasses.js";
+import { UserTypes } from "../../utils/types.js";
 
 // Create new user
 export const createUser = async({name, email, password, mobile, gender}:{name:string; email:string; password:string; mobile:string; gender:"male"|"female"|"other";}) => {

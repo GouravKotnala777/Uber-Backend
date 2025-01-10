@@ -3,9 +3,8 @@ import jsonWebToken from "jsonwebtoken";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { findUserByID } from "../config/services/userModelServices.js";
 import { ObjectId } from "mongoose";
-import { UserTypes } from "../models/userModel.js";
 import { findDriverByID } from "../config/services/driverModelServices.js";
-import { DriverTypesPopulated } from "../models/driverModel.js";
+import { DriverTypesPopulated, UserTypes } from "../utils/types.js";
 
 export interface AuthenticatedRequest extends Request {
     user:UserTypes;
