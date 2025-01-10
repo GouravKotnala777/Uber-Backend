@@ -1,21 +1,7 @@
 import mongoose, { Model } from "mongoose";
 import bcryptjs from "bcryptjs";
-import jsonWebToken, { JwtPayload } from "jsonwebtoken";
-
-export interface UserTypes {
-    _id:mongoose.Schema.Types.ObjectId;
-    name:string;
-    email:string;
-    password:string;
-    mobile:string;
-    gender:"male"|"female"|"other";
-    role:"user"|"admin";
-    socketID:string;
-    image?:string;
-    comparePassword:(password:string) => Promise<boolean>;
-    generateToken:(userID:mongoose.Schema.Types.ObjectId) => Promise<string>;
-    verifyToken:() => JwtPayload;
-}
+import jsonWebToken from "jsonwebtoken";
+import { UserTypes } from "../utils/types.js";
 
 const userSchema = new mongoose.Schema<UserTypes>({
     name:{

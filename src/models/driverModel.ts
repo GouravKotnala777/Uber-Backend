@@ -1,49 +1,7 @@
 import jsonwebtoken from "jsonwebtoken";
 import mongoose, { Model } from "mongoose";
-import { UserTypes } from "./userModel.js";
+import { DriverTypes, DriverTypesPopulated } from "../utils/types.js";
 
-export type VehicleTypeTypes = "uberAuto"|"uberX"|"uberMoto"|"uberScooty"|"uberComfort"|"uberHCV"|"uberPool"|"uberXL";
-export interface LocationTypes {
-    ltd:number;
-    lng:number;
-};
-export interface DriverTypes {
-    _id:mongoose.Schema.Types.ObjectId;
-    userID:mongoose.Schema.Types.ObjectId;
-    licenseNumber:string;
-    vehicleDetailes:{
-        vehicleType:VehicleTypeTypes;
-        vehicleModel:string;
-        vehicleNumber:string;
-        vehicleColor:string;
-    },
-    availabilityStatus:boolean;
-    rating:number;
-    location:LocationTypes;
-    createdAt:Date;
-    updatedAt:Date;
-
-    generateToken:(driverID:mongoose.Schema.Types.ObjectId) => Promise<string>;
-}
-export interface DriverTypesPopulated {
-    _id:mongoose.Schema.Types.ObjectId;
-    userID:Pick<UserTypes, "_id"|"name"|"email"|"gender"|"mobile"|"role"|"socketID">;
-    licenseNumber:string;
-    vehicleDetailes:{
-        vehicleType:VehicleTypeTypes;
-        vehicleModel:string;
-        vehicleNumber:string;
-        vehicleColor:string;
-    },
-    availabilityStatus:boolean;
-    rating:number;
-    location:LocationTypes;
-    image?:string;
-    createdAt:Date;
-    updatedAt:Date;
-
-    generateToken:(driverID:mongoose.Schema.Types.ObjectId) => Promise<string>;
-}
 
 const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
     userID:{

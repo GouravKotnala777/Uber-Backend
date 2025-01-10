@@ -1,11 +1,7 @@
 import mongoose, { Model } from "mongoose";
+import { ChatTypes } from "../utils/types.js";
 
-export interface ChatTypes{
-    sender:mongoose.Schema.Types.ObjectId;
-    receiver:mongoose.Schema.Types.ObjectId;
-    content:string;
-    createdAt:Date;
-}
+
 
 const chatSchema = new mongoose.Schema<ChatTypes>({
     sender:{

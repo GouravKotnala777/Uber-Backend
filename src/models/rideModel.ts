@@ -1,47 +1,5 @@
 import mongoose, { Model } from "mongoose";
-import { UserTypes } from "./userModel.js";
-import { DriverTypes } from "./driverModel.js";
-
-export type RideStatusTypes = "requested"|"accepted"|"in-progress"|"completed"|"cancelled";
-export interface LocationTypes {
-    latitude:number;
-    longitude:number;
-    address:string;
-};
-export interface RideTypes {
-    _id:mongoose.Schema.Types.ObjectId;
-    driverID:mongoose.Schema.Types.ObjectId;
-    passengerID:mongoose.Schema.Types.ObjectId;
-    pickupLocation:LocationTypes;
-    dropoffLocation:LocationTypes;
-    distance:number;
-    fare:number;
-    duration:number;
-    status:RideStatusTypes;
-    paymentID:string;
-    orderID:string;
-    signature:string;
-    otp:string;
-    createdAt:Date;
-    updatedAt:Date;
-};
-export interface RideTypesPopulated {
-    _id:mongoose.Schema.Types.ObjectId;
-    driverID:DriverTypes;
-    passengerID:UserTypes;
-    pickupLocation:LocationTypes;
-    dropoffLocation:LocationTypes;
-    distance:number;
-    fare:number;
-    duration:number;
-    status:RideStatusTypes;
-    paymentID:string;
-    orderID:string;
-    signature:string;
-    otp:string;
-    createdAt:Date;
-    updatedAt:Date;
-};
+import { RideTypes, RideTypesPopulated } from "../utils/types.js";
 
 const rideSchema = new mongoose.Schema<RideTypes|RideTypesPopulated>({
     driverID:{

@@ -3,21 +3,15 @@ import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 import { createDriver, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
-import Driver, { DriverTypes, DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
+import Driver from "../models/driverModel.js";
 import User from "../models/userModel.js";
 import { findUser } from "../config/services/userModelServices.js";
+import { DriverLoginFormTypes, DriverRegisterFormTypes, DriverTypesPopulated, GetAllDriversQueryTypes, UpdateMyDriverProfileFormTypes } from "../utils/types.js";
 
 // Driver register
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, password}:{
-            licenseNumber:string;
-            vehicleType:VehicleTypeTypes;
-            vehicleModel:string;
-            vehicleNumber:string;
-            vehicleColor:string;
-            password:string;
-        } = req.body;
+        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, password}:DriverRegisterFormTypes = req.body;
         const userID = (req as AuthenticatedRequest).user._id;
 
         const searchedDriver = await isDriverExists({userID, licenseNumber, vehicleNumber});
@@ -48,7 +42,7 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
 // Driver login
 export const driverLogin = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {email, password, licenseNumber, vehicleNumber}:{email:string; password:string; licenseNumber:string; vehicleNumber:string;} = req.body;
+        const {email, password, licenseNumber, vehicleNumber}:DriverLoginFormTypes = req.body;
 
         const isUserExists = await findUser({email}, {selectPassword:true});
 
@@ -93,7 +87,7 @@ export const driverProfile = async(req:Request, res:Response, next:NextFunction)
 // Update my driving profile
 export const updateMyDrivingProfile = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, availabilityStatus}:{licenseNumber?:string; vehicleColor?:string; vehicleModel?:string; vehicleNumber?:string; vehicleType?:string; availabilityStatus?:boolean;} = req.body;
+        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, availabilityStatus}:UpdateMyDriverProfileFormTypes = req.body;
         const driver = (req as AuthenticatedRequest).driver;
         
         const findUserAndUpdate = await findDriverByIDAndUpdate({
@@ -161,9 +155,7 @@ export const driverLogout = async(req:Request, res:Response, next:NextFunction) 
 export const getAllDrivers = async(req:Request, res:Response, next:NextFunction) => {
     try {
         //const driver = (req as AuthenticatedRequest).driver;
-        const {availabilityStatus, rating, fromDate, upToDate}:{
-            rating?:string; availabilityStatus?:string; fromDate?:string; upToDate?:string;
-        } = req.query;
+        const {availabilityStatus, rating, fromDate, upToDate}:GetAllDriversQueryTypes = req.query;
 
         const allDriversByQueries = await Driver.find({
             ...(availabilityStatus&&{

@@ -1,13 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
-import Review, { ReviewTypes, ReviewTypesPopulated } from "../models/reviewModel.js";
+import Review from "../models/reviewModel.js";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { Document, Schema } from "mongoose";
+import { CreateReviewFormTypes, FindDriverAllReviewsQueryTypes, ReviewTypes, ReviewTypesPopulated } from "../utils/types.js";
 
 
 export const findDriverAllReviews = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {driverID, rideID}:{driverID?:string; rideID?:string;} = req.query;
+        const {driverID, rideID}:FindDriverAllReviewsQueryTypes = req.query;
 
         if (!driverID || !rideID) return next(new ErrorHandler("Wrong driverID or rideID", 400));
 
@@ -15,7 +16,7 @@ export const findDriverAllReviews = async(req:Request, res:Response, next:NextFu
             driverID
         }).populate({model:"User", path:"passengerID", select:"image"}) as ReviewTypesPopulated[];
 
-        const isReviewExist = driverAllReviews.find((review) => review.rideID?.toString() === rideID);        
+        const isReviewExist = driverAllReviews.find((review) => review.rideID?.toString() === rideID.toString());        
 
         res.status(200).json({success:true, message:"Driver all reviews", jsonData:{driverAllReviews, isReviewExist}});
     } catch (error) {
@@ -25,7 +26,7 @@ export const findDriverAllReviews = async(req:Request, res:Response, next:NextFu
 };
 export const createReview = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {driverID, rideID, rating, comment}:{driverID:string; rideID:string; rating:number; comment?:string;} = req.body;
+        const {driverID, rideID, rating, comment}:CreateReviewFormTypes = req.body;
         const userID = (req as AuthenticatedRequest).user._id;
 
         if (!driverID || !rideID || !rating) return next(new ErrorHandler("All fields are required", 400));

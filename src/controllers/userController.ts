@@ -4,11 +4,12 @@ import { ErrorHandler } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions } from "../utils/constants.js";
 import User from "../models/userModel.js";
+import { LoginFormTypes, RegisterFormTypes, UpdateMyProfileFormTypes } from "../utils/types.js";
 
 // User register
 export const register = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {firstName, lastName, email, password, mobile, gender}:{firstName:string; lastName:string; email:string; password:string; mobile:string; gender:"male"|"female"|"other";} = req.body;
+        const {firstName, lastName, email, password, mobile, gender}:RegisterFormTypes = req.body;
         
         const isUserExists = await findUser({email});
 
@@ -16,7 +17,7 @@ export const register = async(req:Request, res:Response, next:NextFunction) => {
 
         const createNewUser = await createUser({name:firstName.concat(lastName), email, password, mobile, gender});
 
-        res.status(200).json({success:true, message:"register successful", jsonData:createNewUser})
+        res.status(200).json({success:true, message:"register successful", jsonData:createNewUser});
     } catch (error) {
         console.log(error);
         next(error);
@@ -25,7 +26,7 @@ export const register = async(req:Request, res:Response, next:NextFunction) => {
 // User login
 export const login = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {email, password}:{email:string; password:string;} = req.body;
+        const {email, password}:LoginFormTypes = req.body;
 
         const isUserExists = await findUser({email}, {selectPassword:true});
 
@@ -61,7 +62,7 @@ export const myProfile = async(req:Request, res:Response, next:NextFunction) => 
 // Update my profile
 export const updateMyProfile = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {name, password, mobile, gender, oldPassword}:{name?:string; password?:string; mobile?:string; gender?:"male"|"female"|"other"; oldPassword:string;} = req.body;
+        const {name, password, mobile, gender, oldPassword}:UpdateMyProfileFormTypes = req.body;
         const user = (req as AuthenticatedRequest).user;
 
         const findUserByField = await findUserByID({userID:user._id}, {selectPassword:true});

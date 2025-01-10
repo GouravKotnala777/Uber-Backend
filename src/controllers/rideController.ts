@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
-import Ride, { LocationTypes, RideStatusTypes, RideTypesPopulated } from "../models/rideModel.js";
+import Ride from "../models/rideModel.js";
 import { createRide, findByIdAndUpdateRide, findRideById, getFare } from "../config/services/rideModelServices.js";
 import { ErrorHandler } from "../utils/utilityClasses.js";
-import { DriverTypesPopulated, VehicleTypeTypes } from "../models/driverModel.js";
 import crypto from "crypto";
 import { findDriverByID, getDriversWithinRadius } from "../config/services/driverModelServices.js";
 import { getAddressCoordinate } from "../config/services/map.services.js";
 import { sendMessageToSocketId } from "../socket.js";
 import { findUserByID } from "../config/services/userModelServices.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
+import { AcceptRideRequestFormTypes, CreateRideRequestFormTypes, GetAllRidesQueryTypes, RideTypesPopulated, StartRideRequestFormTypes } from "../utils/types.js";
 
 // Get my rides as passenger (except with requested status)
 export const myAllPastRidesPassenger = async(req:Request, res:Response, next:NextFunction) => {
@@ -50,12 +50,7 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
     try {
         const {
             passengerID, pickupLocation, dropoffLocation, vehicleType
-        }:{
-            passengerID:mongoose.Schema.Types.ObjectId;
-            pickupLocation:LocationTypes;
-            dropoffLocation:LocationTypes;
-            vehicleType:VehicleTypeTypes;
-        } = req.body;
+        }:CreateRideRequestFormTypes = req.body;
 
         const newRide = await createRide({
             passengerID, pickupLocation, dropoffLocation, vehicleType
@@ -112,7 +107,7 @@ export function getOTP(num:number){
 // Accept ride request
 export const acceptRideRequest = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {rideID, status}:{rideID:mongoose.Schema.Types.ObjectId; status:RideStatusTypes;} = req.body;
+        const {rideID, status}:AcceptRideRequestFormTypes = req.body;
         const driver = (req as AuthenticatedRequest).driver;
 
         if (!driver) return next(new ErrorHandler("driverID not found", 402));
@@ -162,7 +157,7 @@ export const getFareOfTrip = async(req:Request, res:Response, next:NextFunction)
 // Start ride by filling passenger otp by driver
 export const startRide = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {rideID, otp}:{rideID:mongoose.Schema.Types.ObjectId; otp:string;} = req.body;
+        const {rideID, otp}:StartRideRequestFormTypes = req.body;
         const driverID = (req as AuthenticatedRequest).driver?._id;
 
         if (!driverID) return next(new ErrorHandler("driverID not found", 401));
@@ -237,16 +232,7 @@ export const cancelRide = async(req:Request, res:Response, next:NextFunction) =>
 };
 
 // Dashboard (admin only)
-export const getAllRides = async(req:Request<{}, {}, {}, {
-    driverID?:mongoose.Schema.Types.ObjectId;
-    pickUpLatitude?:string;
-    pickUpLongitude?:string;
-    dropoffLatitude?:string;
-    dropoffLongitude?:string;
-    status?:string;
-    startDate?:string;
-    endDate?:string;
-}>, res:Response, next:NextFunction) => {
+export const getAllRides = async(req:Request<{}, {}, {}, GetAllRidesQueryTypes>, res:Response, next:NextFunction) => {
     try {
         const {
             driverID,

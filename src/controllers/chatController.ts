@@ -4,11 +4,12 @@ import Chat from "../models/chatModel.js";
 import mongoose from "mongoose";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import { sendMessageToSocketId } from "../socket.js";
+import { CreateChatFormTypes } from "../utils/types.js";
 
 // Create new chat
 export const createChat = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {receiver, receiverSocketID, content, senderType}:{receiver:mongoose.Schema.Types.ObjectId; receiverSocketID:string; content:string; senderType:"user"|"driver"} = req.body;
+        const {receiver, receiverSocketID, content, senderType}:CreateChatFormTypes = req.body;
         
         const user = senderType === "user" ? (req as AuthenticatedRequest).user : (req as AuthenticatedRequest).driver;
 

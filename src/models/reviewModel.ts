@@ -1,29 +1,6 @@
 import mongoose, { Model, ObjectId } from "mongoose";
-import { UserTypes } from "./userModel.js";
-import { DriverTypes } from "./driverModel.js";
+import { ReviewTypes, ReviewTypesPopulated } from "../utils/types.js";
 
-
-
-export interface ReviewTypes {
-    _id:ObjectId;
-    passengerID:ObjectId;
-    driverID:ObjectId;
-    rideID:ObjectId;
-    rating:number;
-    comment:string;
-    createdAt:Date;
-    updatedAt:Date;
-};
-export interface ReviewTypesPopulated {
-    _id:ObjectId;
-    passengerID:UserTypes;
-    driverID:DriverTypes;
-    rideID:ObjectId;
-    rating:number;
-    comment:string;
-    createdAt:Date;
-    updatedAt:Date;
-};
 
 const reviewSchema = new mongoose.Schema<ReviewTypes|ReviewTypesPopulated>({
     passengerID:{
