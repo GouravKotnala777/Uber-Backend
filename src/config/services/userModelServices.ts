@@ -49,15 +49,19 @@ export const findUser = async({email, mobile}:{email?:string; mobile?:string;}, 
     return findUser;
 };
 // Find user by _id and then update
-export const findUserByIDAndUpdate = async({userID, name, password, mobile, gender, image}:{userID:mongoose.Schema.Types.ObjectId; name?:string; password?:string; mobile?:string; gender?:"male"|"female"|"other"; image?:string;}) => {
+export const findUserByIDAndUpdate = async({userID, name, password, mobile, gender, image, varificationOTP, varificationOTPExpirs}:{userID:mongoose.Schema.Types.ObjectId; name?:string; password?:string; mobile?:string; gender?:"male"|"female"|"other"; image?:string;
+    varificationOTP?:string; varificationOTPExpirs?:Date;
+}) => {
     if (!userID) throw new ErrorHandler("UserID not found", 404);
-    if (!name && !password && !mobile && !gender && !image) throw new ErrorHandler("All fields for update are empty", 400);
+    if (!name && !password && !mobile && !gender && !image && !varificationOTP && !varificationOTPExpirs) throw new ErrorHandler("All fields for update are empty", 400);
     const updateUser = await User.findByIdAndUpdate(userID, {
         ...(name&&{name}),
         ...(password&&{password}),
         ...(mobile&&{mobile}),
         ...(gender&&{gender}),
-        ...(image&&{image})
+        ...(image&&{image}),
+        ...(varificationOTP&&{varificationOTP}),
+        ...(varificationOTPExpirs&&{varificationOTPExpirs})
     }, {new:true});
     if (!updateUser)  throw new ErrorHandler("Update user not found", 404);
     return updateUser;
