@@ -31,6 +31,23 @@ const userSchema = new mongoose.Schema<UserTypes>({
         enum:["user", "admin"],
         default:"user"
     },
+    isVarified:{
+        type:Boolean,
+        required:true,
+        default:false
+    },
+    varificationOTP:{
+        type:String,
+        validate:{
+            validator:(otpStr:string) => {
+                return otpStr.split("").length === 6;
+            },
+            message:"OTP should be of 6 digits"
+        }
+    },
+    varificationOTPExpirs:{
+        type:Date
+    },
     socketID:String,
     image:String
 });

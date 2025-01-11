@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import { ErrorHandler, sendToken } from "../utils/utilityClasses.js";
+import { ErrorHandler, sendSMS, sendToken } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions, DRIVER_TOKEN_NAME } from "../utils/constants.js";
 import { createDriver, findDriverByIDAndUpdate, findSingleDriver, isDriverExists } from "../config/services/driverModelServices.js";
@@ -12,13 +12,13 @@ import { DriverLoginFormTypes, DriverRegisterFormTypes, DriverTypesPopulated, Ge
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
     try {
         const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, password}:DriverRegisterFormTypes = req.body;
-        const userID = (req as AuthenticatedRequest).user._id;
+        const user = (req as AuthenticatedRequest).user;
 
-        const searchedDriver = await isDriverExists({userID, licenseNumber, vehicleNumber});
+        const searchedDriver = await isDriverExists({userID:user._id, licenseNumber, vehicleNumber});
 
         if (searchedDriver.length !== 0) return next(new ErrorHandler("Driver already exist", 301));
 
-        const searchedUserForPassword = await User.findById(userID).select("+password");
+        const searchedUserForPassword = await User.findById(user._id).select("+password");
         
         const isPasswordMatched = await searchedUserForPassword?.comparePassword(password);
 
@@ -26,14 +26,14 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
 
         const createNewDriver = await createDriver({
             licenseNumber,
-            userID,
+            userID:user._id,
             vehicleColor,
             vehicleModel,
             vehicleNumber,
             vehicleType
         });
 
-        await sendToken(res, createNewDriver, DRIVER_TOKEN_NAME);
+        await sendSMS({receiverMobileNumber:user.mobile, document:createNewDriver, next});
 
         res.status(200).json({success:true, message:"Driver register successful", jsonData:createNewDriver})
     } catch (error) {
@@ -61,14 +61,43 @@ export const driverLogin = async(req:Request, res:Response, next:NextFunction) =
         if (isDriverExists?.licenseNumber !== licenseNumber) return next(new ErrorHandler("Licence number not matched", 404));
         if (isDriverExists?.vehicleDetailes.vehicleNumber !== vehicleNumber) return next(new ErrorHandler("Vehicle number not matched", 404));
         
-        //const createDriverToken = await isDriverExists.generateToken(isDriverExists._id);
-        
-        await sendToken(res, isDriverExists, DRIVER_TOKEN_NAME);
-        //res.cookie(DRIVER_TOKEN_NAME, createDriverToken, cookieOptions);
+        if (!isDriverExists.isVarified) {
+            await sendSMS({receiverMobileNumber:isUserExists.mobile, document:isDriverExists, next});
+        }
+        else{
+            await sendToken(res, isDriverExists, DRIVER_TOKEN_NAME);
+        }        
 
-        //console.log({createDriverToken});
+        res.status(200).json({success:true, message:isDriverExists.isVarified?"Driver login successful":"OTP has sent to your mobile", jsonData:isDriverExists})
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// User verification thorugh OPT
+export const verifyDriver = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const {otp}:{otp:number;} = req.body;
 
-        res.status(200).json({success:true, message:"Driver login successful", jsonData:isDriverExists})
+        const driverWithValidOTP = await User.findOne({
+            isVarified:false,
+            varificationOTP:otp,
+            varificationOTPExpirs:{
+                $gt:Date.now()
+            }
+        });
+
+        if (!driverWithValidOTP) return next(new ErrorHandler("Driver with that otp not not found", 404));
+
+        driverWithValidOTP.varificationOTP = undefined;
+        driverWithValidOTP.varificationOTPExpirs = undefined;
+        driverWithValidOTP.isVarified = true;
+
+        await driverWithValidOTP.save();
+
+        await sendToken(res, driverWithValidOTP, DRIVER_TOKEN_NAME);
+
+        res.status(200).json({success:true, message:"Driver varified successfully", jsonData:{}});
     } catch (error) {
         console.log(error);
         next(error);

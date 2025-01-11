@@ -1,10 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { createUser, findUser, findUserByID, findUserByIDAndUpdate } from "../config/services/userModelServices.js";
-import { ErrorHandler, sendToken } from "../utils/utilityClasses.js";
+import { ErrorHandler, sendSMS, sendToken } from "../utils/utilityClasses.js";
 import { AuthenticatedRequest } from "../middlewares/auth.js";
 import { cookieOptions, USER_TOKEN_NAME } from "../utils/constants.js";
 import User from "../models/userModel.js";
 import { LoginFormTypes, RegisterFormTypes, UpdateMyProfileFormTypes } from "../utils/types.js";
+import { getOTP } from "./rideController.js";
 
 // User register
 export const register = async(req:Request, res:Response, next:NextFunction) => {
@@ -17,8 +18,9 @@ export const register = async(req:Request, res:Response, next:NextFunction) => {
 
         const createNewUser = await createUser({name:firstName.concat(lastName), email, password, mobile, gender});
 
-        await sendToken(res, createNewUser, USER_TOKEN_NAME);
-        res.status(200).json({success:true, message:"register successful", jsonData:createNewUser});
+        await sendSMS({receiverMobileNumber:mobile, document:createNewUser, next});
+
+        res.status(200).json({success:true, message:"OTP sended to your mobile", jsonData:{}});
     } catch (error) {
         console.log(error);
         next(error);
@@ -37,12 +39,45 @@ export const login = async(req:Request, res:Response, next:NextFunction) => {
 
         if (!isPasswordMatched) return next(new ErrorHandler("Wrong email or password2", 402));
 
-        await sendToken(res, isUserExists, USER_TOKEN_NAME);
-        //const createToken = await isUserExists.generateToken(isUserExists._id);
+        if (!isUserExists.isVarified) {
+            await sendSMS({receiverMobileNumber:isUserExists.mobile, document:isUserExists, next});
+            //return res.status(200).json({success:true, message:"OTP sended to your mobile", jsonData:{}});
+            //return next(new ErrorHandler("OTP sended to your mobile", 200));
+        }
+        else{
+            await sendToken(res, isUserExists, USER_TOKEN_NAME);
+        }
 
-        //res.cookie(USER_TOKEN_NAME, createToken, {httpOnly:true, secure:true, sameSite:"none"})
+        res.status(200).json({success:true, message:isUserExists.isVarified?"User login successful":"OTP has sent to your mobile", jsonData:{}});
+    } catch (error) {
+        console.log(error);
+        next(error);
+    }
+};
+// User verification thorugh OPT
+export const verifyUser = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const {otp}:{otp:number;} = req.body;
 
-        res.status(200).json({success:true, message:"register successful", jsonData:isUserExists})
+        const userWithValidOTP = await User.findOne({
+            isVarified:false,
+            varificationOTP:otp,
+            varificationOTPExpirs:{
+                $gt:Date.now()
+            }
+        });
+
+        if (!userWithValidOTP) return next(new ErrorHandler("User with that otp not not found", 404));
+
+        userWithValidOTP.varificationOTP = undefined;
+        userWithValidOTP.varificationOTPExpirs = undefined;
+        userWithValidOTP.isVarified = true;
+
+        await userWithValidOTP.save();
+
+        await sendToken(res, userWithValidOTP, USER_TOKEN_NAME);
+
+        res.status(200).json({success:true, message:"User varified successfully", jsonData:userWithValidOTP});
     } catch (error) {
         console.log(error);
         next(error);

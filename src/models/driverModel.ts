@@ -35,6 +35,23 @@ const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
         ltd:Number,
         lng:Number
     },
+    isVarified:{
+        type:Boolean,
+        required:true,
+        default:false
+    },
+    varificationOTP:{
+        type:String,
+        validate:{
+            validator:(num:string) => {
+                return num.split("").length === 6;
+            },
+            message:"OTP should be of 6 digits"
+        }
+    },
+    varificationOTPExpirs:{
+        type:Date
+    },
     image:String
 }, {
     timestamps:true

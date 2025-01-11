@@ -14,6 +14,9 @@ export interface UserTypes {
     role:"user"|"admin";
     socketID:string;
     image?:string;
+    isVarified:boolean;
+    varificationOTP?:string;
+    varificationOTPExpirs?:Date;
     comparePassword:(password:string) => Promise<boolean>;
     generateToken:(userID:mongoose.Schema.Types.ObjectId) => Promise<string>;
     verifyToken:() => JwtPayload;
@@ -54,9 +57,12 @@ export interface DriverTypes {
     location:LocationTypes;
     createdAt:Date;
     updatedAt:Date;
+    isVarified:boolean;
+    varificationOTP?:string;
+    varificationOTPExpirs?:Date;
     generateToken:(driverID:mongoose.Schema.Types.ObjectId) => Promise<string>;
 }
-export interface DriverTypesPopulated extends Pick<DriverTypes, "_id"|"licenseNumber"|"vehicleDetailes"|"availabilityStatus"|"rating"|"location"|"createdAt"|"updatedAt"|"generateToken"> {
+export interface DriverTypesPopulated extends Pick<DriverTypes, "_id"|"licenseNumber"|"vehicleDetailes"|"availabilityStatus"|"rating"|"location"|"createdAt"|"updatedAt"|"generateToken"|"isVarified"|"varificationOTP"|"varificationOTPExpirs"> {
     userID:Pick<UserTypes, "_id"|"name"|"email"|"gender"|"mobile"|"role"|"socketID">;
     image?:string;
 }
