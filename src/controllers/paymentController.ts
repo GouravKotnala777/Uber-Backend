@@ -3,6 +3,10 @@ import Payment, { PaymentMethodTypes, PaymentStatusTypes } from "../models/payme
 import mongoose from "mongoose";
 import { ErrorHandler } from "../utils/utilityClasses.js";
 import Ride from "../models/rideModel.js";
+import { sendMessageToSocketId } from "../socket.js";
+import { PAYMENT_DONE } from "../utils/constants.js";
+import Driver from "../models/driverModel.js";
+import { DriverTypesPopulated } from "../utils/types.js";
 
 
 export const createPayment = async(req:Request, res:Response, next:NextFunction) => {
@@ -21,6 +25,15 @@ export const createPayment = async(req:Request, res:Response, next:NextFunction)
         const updatedRide = await Ride.findByIdAndUpdate(rideID, {
             paymentID:newPayment._id
         }, {new:true});
+
+        if (!updatedRide) return next(new ErrorHandler("Internal server error", 500));
+        
+        const driver = await Driver.findById(updatedRide.driverID).populate({model:"User", path:"userID", select:"socketID"}) as DriverTypesPopulated;
+        
+        if (!driver) return next(new ErrorHandler("Driver not found", 404));
+        
+
+        sendMessageToSocketId({socketID:driver.userID.socketID, eventName:PAYMENT_DONE, message:`Payment ${amount} done`})
 
         res.status(200).json({success:true, message:"Payment done", jsonData:newPayment});
     } catch (error) {
