@@ -48,4 +48,5 @@ export const RIDE_STARTED = "ride-started";
 export const RIDE_ENDED = "ride-ended";
 export const RIDE_CANCELLED = "ride-cancelled";
 export const NEW_MESSAGE = "new-message";
+export const PAYMENT_DONE = "payment-done";
 export const DISCONNECT = "disconnect";
