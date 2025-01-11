@@ -79,7 +79,7 @@ export const verifyDriver = async(req:Request, res:Response, next:NextFunction) 
     try {
         const {otp}:{otp:number;} = req.body;
 
-        const driverWithValidOTP = await User.findOne({
+        const driverWithValidOTP = await Driver.findOne({
             isVarified:false,
             varificationOTP:otp,
             varificationOTPExpirs:{
@@ -87,7 +87,7 @@ export const verifyDriver = async(req:Request, res:Response, next:NextFunction) 
             }
         });
 
-        if (!driverWithValidOTP) return next(new ErrorHandler("Driver with that otp not not found", 404));
+        if (!driverWithValidOTP) return next(new ErrorHandler("Driver with that otp not found", 404));
 
         driverWithValidOTP.varificationOTP = undefined;
         driverWithValidOTP.varificationOTPExpirs = undefined;

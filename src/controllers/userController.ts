@@ -67,7 +67,7 @@ export const verifyUser = async(req:Request, res:Response, next:NextFunction) =>
             }
         });
 
-        if (!userWithValidOTP) return next(new ErrorHandler("User with that otp not not found", 404));
+        if (!userWithValidOTP) return next(new ErrorHandler("User with that otp not found", 404));
 
         userWithValidOTP.varificationOTP = undefined;
         userWithValidOTP.varificationOTPExpirs = undefined;
