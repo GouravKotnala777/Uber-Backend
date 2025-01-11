@@ -43,7 +43,7 @@ export const sendSMS = async<T>({receiverMobileNumber, document, next}:{receiver
         const messageRes = await client.messages.create({
             body:`This is OTP generated for varification for Uber-frontend webapp ${newOTP}`,
             from:smsKey, // From a valid Twilio number
-            to:receiverMobileNumber, // Text your number
+            to:`+91${receiverMobileNumber}`, // Text your number
         });
         
         console.log({messageRes});
