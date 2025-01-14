@@ -29,6 +29,39 @@ export const myAllPastRidesPassenger = async(req:Request, res:Response, next:Nex
         next(error);
     }
 };
+// Get my all unique rides as passenger
+export const myAllUniqueRidesPassenger = async(req:Request, res:Response, next:NextFunction) => {
+    try {
+        const userID = (req as AuthenticatedRequest).user._id;
+
+        const myAllRides = await Ride.aggregate([
+            {$match:{passengerID:userID, status:{$ne:"requested"}}},
+            {$group:{
+                _id:{
+                    pickupLocation:"$pickupLocation",
+                    dropoffLocation:"$dropoffLocation",
+                    fare:"$fare"
+                },
+                ride:{$first:"$$ROOT"}
+            }},
+            {$replaceRoot:{newRoot:"$ride"}},
+            {$lookup:{
+                from:"drivers",
+                localField:"driverID",
+                foreignField:"_id",
+                as:"driverID"
+            }},
+            {$unwind:{
+                path:"$driverID",
+                preserveNullAndEmptyArrays:true
+            }}
+        ]) as RideTypesPopulated[];
+        //.populate({model:"Driver", path:"driverID"}) as RideTypesPopulated[];
+        res.status(200).json({success:true, message:"All rides", jsonData:myAllRides});
+    } catch (error) {
+        next(error);
+    }
+};
 // Get my rides as driver (except with requested status)
 export const myAllPastRidesDriver = async(req:Request, res:Response, next:NextFunction) => {
     try {
@@ -86,6 +119,7 @@ export const createRideRequest = async(req:Request, res:Response, next:NextFunct
                     passengerEmail:requestingPassenger.email,
                     passengerMobile:requestingPassenger.mobile,
                     passengerGender:requestingPassenger.gender,
+                    passengerImg:requestingPassenger?.image,
                     passengerSocketID:requestingPassenger.socketID
                 }
             });
@@ -129,6 +163,7 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
                 driverMobile:driver.userID.mobile,
                 driverGender:driver.userID.gender,
                 driverID:driver._id,
+                driverImg:driver.image,
                 driverSocketID:driver.userID.socketID,
                 licenseNumber:acceptedRide.driverID.licenseNumber,
                 vehicleDetailes:acceptedRide.driverID.vehicleDetailes,

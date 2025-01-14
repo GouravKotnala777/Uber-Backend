@@ -1,11 +1,12 @@
 import express from "express";
 import { isDriverAuthenticated, isUserAuthenticated } from "../middlewares/auth.js";
-import { acceptRideRequest, cancelRide, createRideRequest, endRide, getAllRides, getFareOfTrip, myAllPastRidesDriver, myAllPastRidesPassenger, startRide } from "../controllers/rideController.js";
+import { acceptRideRequest, cancelRide, createRideRequest, endRide, getAllRides, getFareOfTrip, myAllPastRidesDriver, myAllPastRidesPassenger, myAllUniqueRidesPassenger, startRide } from "../controllers/rideController.js";
 
 const rideRouter = express.Router();
 
 rideRouter.route("/all").get(getAllRides);
 rideRouter.route("/passenger/my-rides").get(isUserAuthenticated, myAllPastRidesPassenger);
+rideRouter.route("/passenger/my-unique-rides").get(isUserAuthenticated, myAllUniqueRidesPassenger);
 rideRouter.route("/driver/my-rides").get(isDriverAuthenticated, myAllPastRidesDriver);
 
 rideRouter.route("/create").post(isUserAuthenticated, createRideRequest);
