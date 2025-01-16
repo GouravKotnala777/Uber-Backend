@@ -16,7 +16,7 @@ const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
     vehicleDetailes:{
         vehicleType:{
             type:String,
-            default:"car",
+            default:"uberX",
             enum:["uberX", "uberComfort", "uberXL", "uberPool", "uberMoto", "uberScooty","uberAuto", "uberHCV"]
         },
         vehicleModel:String,

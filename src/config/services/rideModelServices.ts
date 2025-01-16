@@ -103,7 +103,8 @@ export const findByIdAndUpdateRide = async({
     pickupLocation,
     dropoffLocation,
     status,
-    otp
+    otp,
+    vehicleDetailes
 }:{
     rideID:mongoose.Schema.Types.ObjectId;
     driverID?:mongoose.Schema.Types.ObjectId;
@@ -112,6 +113,12 @@ export const findByIdAndUpdateRide = async({
     dropoffLocation?:string;
     status?:RideStatusTypes;
     otp?:string;
+    vehicleDetailes?:{
+        vehicleType:string;
+        vehicleModel:string;
+        vehicleNumber:string;
+        vehicleColor:string;
+    }
 }, options?:{selectOtp:boolean;}) => {
     let updateRide:RideTypesPopulated|null = null;
     if (options?.selectOtp) {
@@ -121,6 +128,7 @@ export const findByIdAndUpdateRide = async({
             ...(pickupLocation&&{pickupLocation}),
             ...(dropoffLocation&&{dropoffLocation}),
             ...(status&&{status}),
+            ...(vehicleDetailes&&{vehicleDetailes}),
             ...(otp&&{otp})
         }, {new:true})
         .select("+otp")
@@ -133,7 +141,8 @@ export const findByIdAndUpdateRide = async({
             ...(distance&&{distance}),
             ...(pickupLocation&&{pickupLocation}),
             ...(dropoffLocation&&{dropoffLocation}),
-            ...(status&&{status})
+            ...(status&&{status}),
+            ...(vehicleDetailes&&{vehicleDetailes}),
         }, {new:true})
         .populate({model:"User", path:"passengerID", select:"socketID"})
         .populate({model:"Driver", path:"driverID", select:"licenseNumber vehicleDetailes rating"}) as RideTypesPopulated;

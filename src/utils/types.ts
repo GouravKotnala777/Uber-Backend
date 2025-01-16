@@ -90,8 +90,9 @@ export interface RideLocationTypes {
 };
 export interface RideTypes {
     _id:mongoose.Schema.Types.ObjectId;
-    driverID:mongoose.Schema.Types.ObjectId;
+    driverID?:mongoose.Schema.Types.ObjectId;
     passengerID:mongoose.Schema.Types.ObjectId;
+    vehicleDetailes?:VehicleDetailesTypes;
     pickupLocation:LocationTypes;
     dropoffLocation:LocationTypes;
     distance:number;
@@ -105,8 +106,8 @@ export interface RideTypes {
     createdAt:Date;
     updatedAt:Date;
 };
-export interface RideTypesPopulated extends Pick<RideTypes, "_id"|"pickupLocation"|"dropoffLocation"|"distance"|"fare"|"duration"|"status"|"paymentID"|"orderID"|"signature"|"otp"|"createdAt"|"updatedAt"> {
-    driverID:DriverTypes;
+export interface RideTypesPopulated extends Pick<RideTypes, "_id"|"pickupLocation"|"dropoffLocation"|"vehicleDetailes"|"distance"|"fare"|"duration"|"status"|"paymentID"|"orderID"|"signature"|"otp"|"createdAt"|"updatedAt"> {
+    driverID?:DriverTypes;
     passengerID:UserTypes;
 };
 // create ride request types

@@ -11,6 +11,15 @@ const rideSchema = new mongoose.Schema<RideTypes|RideTypesPopulated>({
         ref:"User",
         required:true
     },
+    vehicleDetailes:{
+        vehicleType:{
+            type:String,
+            enum:["uberX", "uberComfort", "uberXL", "uberPool", "uberMoto", "uberScooty","uberAuto", "uberHCV"]
+        },
+        vehicleModel:String,
+        vehicleNumber:String,
+        vehicleColor:String
+    },
     pickupLocation:{
         latitude:{
             type:Number,

@@ -40,22 +40,16 @@ export const myAllUniqueRidesPassenger = async(req:Request, res:Response, next:N
                 _id:{
                     pickupLocation:"$pickupLocation",
                     dropoffLocation:"$dropoffLocation",
-                    fare:"$fare"
+                    fare:"$fare",
+                    vehicleDetailes:"$vehicleDetailes"
                 },
                 ride:{$first:"$$ROOT"}
             }},
             {$replaceRoot:{newRoot:"$ride"}},
-            {$lookup:{
-                from:"drivers",
-                localField:"driverID",
-                foreignField:"_id",
-                as:"driverID"
-            }},
-            {$unwind:{
-                path:"$driverID",
-                preserveNullAndEmptyArrays:true
-            }}
         ]) as RideTypesPopulated[];
+
+        console.log(myAllRides);
+        
         //.populate({model:"Driver", path:"driverID"}) as RideTypesPopulated[];
         res.status(200).json({success:true, message:"All rides", jsonData:myAllRides});
     } catch (error) {
@@ -147,7 +141,7 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
 
         if (!driver) return next(new ErrorHandler("driverID not found", 402));
 
-        const acceptedRide = await findByIdAndUpdateRide({rideID, driverID:driver._id, status}, {selectOtp:true});
+        const acceptedRide = await findByIdAndUpdateRide({rideID, driverID:driver._id, status, vehicleDetailes:driver.vehicleDetailes}, {selectOtp:true});
 
         if (!acceptedRide) return next(new ErrorHandler("Internal server error", 500));
 
@@ -165,9 +159,9 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
                 driverID:driver._id,
                 driverImg:driver.image,
                 driverSocketID:driver.userID.socketID,
-                licenseNumber:acceptedRide.driverID.licenseNumber,
-                vehicleDetailes:acceptedRide.driverID.vehicleDetailes,
-                rating:acceptedRide.driverID.rating
+                licenseNumber:acceptedRide.driverID?.licenseNumber,
+                vehicleDetailes:acceptedRide.driverID?.vehicleDetailes,
+                rating:acceptedRide.driverID?.rating
             }
         });
 
@@ -204,7 +198,7 @@ export const startRide = async(req:Request, res:Response, next:NextFunction) => 
 
         if (ride.status !== "accepted") return next(new ErrorHandler("Ride is not accepted", 401));
         if (ride.otp !== otp) return next(new ErrorHandler("Invalid OTP", 401));
-        if (driverID.toString() !== ride.driverID.toString()) return next(new ErrorHandler("You are not riding this ride", 401));
+        if (driverID.toString() !== ride.driverID?.toString()) return next(new ErrorHandler("You are not riding this ride", 401));
             
         ride.otp = "";
         ride.status = "in-progress";
@@ -229,7 +223,7 @@ export const endRide = async(req:Request, res:Response, next:NextFunction) => {
         if (!ride) return next(new ErrorHandler("Ride not found", 404));
         
         if (ride.status !== "in-progress") return next(new ErrorHandler("Ride has not started", 401));
-        if (ride.driverID.toString() !== driverID.toString()) return next(new ErrorHandler("Your are not driving it", 401));
+        if (ride.driverID?.toString() !== driverID.toString()) return next(new ErrorHandler("Your are not driving it", 401));
         
         ride.status = "completed";
         
@@ -253,7 +247,7 @@ export const cancelRide = async(req:Request, res:Response, next:NextFunction) =>
         if (!ride) return next(new ErrorHandler("Ride not found", 404));
         
         if (ride.status === "cancelled" || ride.status === "completed" || ride.status === "requested") return next(new ErrorHandler("Ride has not cancellable", 401));
-        if (ride.driverID.toString() !== driverID.toString()) return next(new ErrorHandler("Your are not driving it", 401));
+        if (ride.driverID?.toString() !== driverID.toString()) return next(new ErrorHandler("Your are not driving it", 401));
         
         ride.status = "cancelled";
         
