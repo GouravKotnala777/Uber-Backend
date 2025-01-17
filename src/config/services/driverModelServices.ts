@@ -23,7 +23,7 @@ export const createDriver = async({licenseNumber, userID, vehicleColor, vehicleM
     const newDriver = await Driver.create({
         licenseNumber:licenseNumber.toLowerCase(),
         userID,
-        vehicleDetailes:{vehicleColor:vehicleColor.toLowerCase(), vehicleModel:vehicleModel.toLowerCase(), vehicleNumber:vehicleNumber.toLowerCase(), vehicleType:vehicleType.toLowerCase(), vehicleCapacity},
+        vehicleDetailes:{vehicleColor:vehicleColor.toLowerCase(), vehicleModel:vehicleModel.toLowerCase(), vehicleNumber:vehicleNumber.toLowerCase(), vehicleType:vehicleType, vehicleCapacity},
         location:{ // hard coded (only for development)
             ltd : 28.4339049,
             lng : 77.3223915
@@ -73,7 +73,7 @@ export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleTy
             ...(availabilityStatus&&{availabilityStatus}),
             ...(vehicleType&&vehicleModel&&
                 {vehicleDetailes:{
-                ...(vehicleType&&{vehicleType:vehicleType.toLowerCase()}),
+                ...(vehicleType&&{vehicleType}),
                 ...(vehicleModel&&{vehicleModel:vehicleModel.toLowerCase()})
             }}),
             ...(rating&&{rating})
@@ -84,7 +84,7 @@ export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleTy
             ...(availabilityStatus&&{availabilityStatus}),
             ...(vehicleType&&vehicleModel&&
                 {vehicleDetailes:{
-                ...(vehicleType&&{vehicleType:vehicleType.toLowerCase()}),
+                ...(vehicleType&&{vehicleType}),
                 ...(vehicleModel&&{vehicleModel:vehicleModel.toLowerCase()})
             }}),
             ...(rating&&{rating})
@@ -139,7 +139,7 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
                 ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber.toLowerCase()}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber.toLowerCase()}),
                 ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor.toLowerCase()}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor.toLowerCase()}),
                 ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel.toLowerCase()}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel.toLowerCase()}),
-                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType.toLowerCase()}:{vehicleType:findDriver?.vehicleDetailes.vehicleType.toLowerCase()})
+                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
             },
             ...(licenseNumber&&{licenseNumber:licenseNumber.toLowerCase()}),
             ...((availabilityStatus === true || availabilityStatus === false)&&{availabilityStatus}),
@@ -152,7 +152,7 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
                 ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber.toLowerCase()}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber.toLowerCase()}),
                 ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor.toLowerCase()}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor.toLowerCase()}),
                 ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel.toLowerCase()}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel.toLowerCase()}),
-                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType.toLowerCase()}:{vehicleType:findDriver?.vehicleDetailes.vehicleType.toLowerCase()})
+                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
             },
             ...(licenseNumber&&{licenseNumber:licenseNumber.toLowerCase()}),
             ...((availabilityStatus === true || availabilityStatus === false)&&{availabilityStatus}),
@@ -175,7 +175,7 @@ export const getDriversWithinRadius = async({ltd, lng, radius, vehicleType}:{ltd
             }
         },
         availabilityStatus:true,
-        "vehicleDetailes.vehicleType":vehicleType.toLowerCase()
+        "vehicleDetailes.vehicleType":vehicleType
     }).populate({model:"User", path:"userID", select:"_id name email mobile gender role socketID"}) as DriverTypesPopulated[];
     return drivers;
 };
