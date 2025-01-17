@@ -36,13 +36,13 @@ export const findUser = async({email, mobile}:{email?:string; mobile?:string;}, 
     let findUser = null;
     if (options?.selectPassword) {
         findUser = await User.findOne({
-            ...(email && {email}),
+            ...(email && {email:email.toLowerCase()}),
             ...(mobile && {mobile}),
         }).select("+password");
     }
     else{
         findUser = await User.findOne({
-            ...(email && {email}),
+            ...(email && {email:email.toLowerCase()}),
             ...(mobile && {mobile}),
         });
     }
@@ -55,7 +55,7 @@ export const findUserByIDAndUpdate = async({userID, name, password, mobile, gend
     if (!userID) throw new ErrorHandler("UserID not found", 404);
     if (!name && !password && !mobile && !gender && !image && !varificationOTP && !varificationOTPExpirs) throw new ErrorHandler("All fields for update are empty", 400);
     const updateUser = await User.findByIdAndUpdate(userID, {
-        ...(name&&{name}),
+        ...(name&&{name:name.toLowerCase()}),
         ...(password&&{password}),
         ...(mobile&&{mobile}),
         ...(gender&&{gender}),

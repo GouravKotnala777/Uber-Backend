@@ -16,9 +16,19 @@ const rideSchema = new mongoose.Schema<RideTypes|RideTypesPopulated>({
             type:String,
             enum:["uberX", "uberComfort", "uberXL", "uberPool", "uberMoto", "uberScooty","uberAuto", "uberHCV"]
         },
-        vehicleModel:String,
-        vehicleNumber:String,
-        vehicleColor:String
+        vehicleModel:{
+            type:String,
+            lowercase:true
+        },
+        vehicleNumber:{
+            type:String,
+            lowercase:true
+        },
+        vehicleColor:{
+            type:String,
+            lowercase:true
+        },
+        vehicleCapacity:Number
     },
     pickupLocation:{
         latitude:{
@@ -31,7 +41,8 @@ const rideSchema = new mongoose.Schema<RideTypes|RideTypesPopulated>({
         },
         address:{
             type:String,
-            required:true
+            required:true,
+            lowercase:true
         }
     },
     dropoffLocation:{
@@ -45,7 +56,8 @@ const rideSchema = new mongoose.Schema<RideTypes|RideTypesPopulated>({
         },
         address:{
             type:String,
-            required:true
+            required:true,
+            lowercase:true
         }
     },
     distance:{

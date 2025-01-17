@@ -13,15 +13,6 @@ export const createDriver = async({licenseNumber, userID, vehicleColor, vehicleM
     vehicleColor:string;
     vehicleCapacity:number;
 }) => {
-    console.log({
-        licenseNumber,
-        vehicleType,
-        vehicleModel,
-        vehicleNumber,
-        vehicleColor,
-        vehicleCapacity
-    });
-    
     if (!licenseNumber ||
         !vehicleType ||
         !vehicleModel ||
@@ -30,7 +21,13 @@ export const createDriver = async({licenseNumber, userID, vehicleColor, vehicleM
     ) throw(new ErrorHandler("All fields are required", 404));
 
     const newDriver = await Driver.create({
-        licenseNumber, userID, vehicleDetailes:{vehicleColor, vehicleModel, vehicleNumber, vehicleType, vehicleCapacity}
+        licenseNumber:licenseNumber.toLowerCase(),
+        userID,
+        vehicleDetailes:{vehicleColor:vehicleColor.toLowerCase(), vehicleModel:vehicleModel.toLowerCase(), vehicleNumber:vehicleNumber.toLowerCase(), vehicleType:vehicleType.toLowerCase(), vehicleCapacity},
+        location:{ // hard coded (only for development)
+            ltd : 28.4339049,
+            lng : 77.3223915
+        }
     });
     if (!newDriver) throw(new ErrorHandler("Internal server error", 500));
     return newDriver;
@@ -54,16 +51,16 @@ export const findSingleDriver = async({userID, licenseNumber, availabilityStatus
     if (options?.populateUser) {
         searchedDriver = await Driver.findOne({
             ...(userID&&{userID}),
-            ...(licenseNumber&&{licenseNumber}),
+            ...(licenseNumber&&{licenseNumber:licenseNumber.toLowerCase()}),
             ...(availabilityStatus&&{availabilityStatus}),
             ...(vehicleNumber&&{vehicleNumber})
         }).populate({model:"User", path:"userID", select:"_id name email mobile gender role socketID"});
     }else{
         searchedDriver = await Driver.findOne({
             ...(userID&&{userID}),
-            ...(licenseNumber&&{licenseNumber}),
+            ...(licenseNumber&&{licenseNumber:licenseNumber.toLowerCase()}),
             ...(availabilityStatus&&{availabilityStatus}),
-            ...(vehicleNumber&&{vehicleNumber})
+            ...(vehicleNumber&&{vehicleNumber:vehicleNumber.toLowerCase()})
         });
     }
     return searchedDriver;
@@ -76,8 +73,8 @@ export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleTy
             ...(availabilityStatus&&{availabilityStatus}),
             ...(vehicleType&&vehicleModel&&
                 {vehicleDetailes:{
-                ...(vehicleType&&{vehicleType}),
-                ...(vehicleModel&&{vehicleModel})
+                ...(vehicleType&&{vehicleType:vehicleType.toLowerCase()}),
+                ...(vehicleModel&&{vehicleModel:vehicleModel.toLowerCase()})
             }}),
             ...(rating&&{rating})
         }).populate({model:"User", path:"userID", select:"_id name email mobile"});
@@ -87,8 +84,8 @@ export const findAllDrivers = async({availabilityStatus, vehicleModel, vehicleTy
             ...(availabilityStatus&&{availabilityStatus}),
             ...(vehicleType&&vehicleModel&&
                 {vehicleDetailes:{
-                ...(vehicleType&&{vehicleType}),
-                ...(vehicleModel&&{vehicleModel})
+                ...(vehicleType&&{vehicleType:vehicleType.toLowerCase()}),
+                ...(vehicleModel&&{vehicleModel:vehicleModel.toLowerCase()})
             }}),
             ...(rating&&{rating})
         });
@@ -104,8 +101,8 @@ export const isDriverExists = async({userID, licenseNumber, vehicleNumber}:{user
         searchedAllDriver = await Driver.find({
             $or:[
                 {userID},
-                {licenseNumber},
-                {vehicleNumber}
+                {licenseNumber:licenseNumber.toLowerCase()},
+                {vehicleNumber:vehicleNumber.toLowerCase()}
             ]
         }).populate({model:"User", path:"userID", select:"_id name email mobile gender"});
     }
@@ -113,8 +110,8 @@ export const isDriverExists = async({userID, licenseNumber, vehicleNumber}:{user
         searchedAllDriver = await Driver.find({
             $or:[
                 {userID},
-                {licenseNumber},
-                {vehicleNumber}
+                {licenseNumber:licenseNumber.toLowerCase()},
+                {vehicleNumber:vehicleNumber.toLowerCase()}
             ]
         });
     }
@@ -139,12 +136,12 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
     if (options?.populateUser) {
         updatedDriver = await Driver.findByIdAndUpdate(driverID, {
             vehicleDetailes:{
-                ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber}),
-                ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor}),
-                ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel}),
-                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
+                ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber.toLowerCase()}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber.toLowerCase()}),
+                ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor.toLowerCase()}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor.toLowerCase()}),
+                ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel.toLowerCase()}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel.toLowerCase()}),
+                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType.toLowerCase()}:{vehicleType:findDriver?.vehicleDetailes.vehicleType.toLowerCase()})
             },
-            ...(licenseNumber&&{licenseNumber}),
+            ...(licenseNumber&&{licenseNumber:licenseNumber.toLowerCase()}),
             ...((availabilityStatus === true || availabilityStatus === false)&&{availabilityStatus}),
             ...(image&&{image})
         }, {new:true}).populate({model:"User", path:"userID", select:"name email mobile gender role socketID"}) as DriverTypesPopulated;
@@ -152,12 +149,12 @@ export const findDriverByIDAndUpdate = async({driverID, licenseNumber, vehicleDe
     else{
         updatedDriver = await Driver.findByIdAndUpdate(driverID, {
             vehicleDetailes:{
-                ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber}),
-                ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor}),
-                ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel}),
-                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType}:{vehicleType:findDriver?.vehicleDetailes.vehicleType})
+                ...(vehicleDetailes?.vehicleNumber?{vehicleNumber:vehicleDetailes.vehicleNumber.toLowerCase()}:{vehicleNumber:findDriver?.vehicleDetailes.vehicleNumber.toLowerCase()}),
+                ...(vehicleDetailes?.vehicleColor?{vehicleColor:vehicleDetailes.vehicleColor.toLowerCase()}:{vehicleColor:findDriver?.vehicleDetailes.vehicleColor.toLowerCase()}),
+                ...(vehicleDetailes?.vehicleModel?{vehicleModel:vehicleDetailes.vehicleModel.toLowerCase()}:{vehicleModel:findDriver?.vehicleDetailes.vehicleModel.toLowerCase()}),
+                ...(vehicleDetailes?.vehicleType?{vehicleType:vehicleDetailes.vehicleType.toLowerCase()}:{vehicleType:findDriver?.vehicleDetailes.vehicleType.toLowerCase()})
             },
-            ...(licenseNumber&&{licenseNumber}),
+            ...(licenseNumber&&{licenseNumber:licenseNumber.toLowerCase()}),
             ...((availabilityStatus === true || availabilityStatus === false)&&{availabilityStatus}),
             ...(image&&{image})
         }, {new:true});
@@ -178,7 +175,7 @@ export const getDriversWithinRadius = async({ltd, lng, radius, vehicleType}:{ltd
             }
         },
         availabilityStatus:true,
-        "vehicleDetailes.vehicleType":vehicleType
+        "vehicleDetailes.vehicleType":vehicleType.toLowerCase()
     }).populate({model:"User", path:"userID", select:"_id name email mobile gender role socketID"}) as DriverTypesPopulated[];
     return drivers;
 };

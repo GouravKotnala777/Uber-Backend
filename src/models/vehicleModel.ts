@@ -16,9 +16,18 @@ const vehicleSchema = new mongoose.Schema<VehicleTypes>({
         default:"uberX",
         enum:["uberX", "uberComfort", "uberXL", "uberPool", "uberMoto", "uberScooty","uberAuto", "uberHCV"]
     },
-    vehicleModel:String,
-    vehicleNumber:String,
-    vehicleColor:String,
+    vehicleModel:{
+        type:String,
+        lowercase:true
+    },
+    vehicleNumber:{
+        type:String,
+        lowercase:true
+    },
+    vehicleColor:{
+        type:String,
+        lowercase:true
+    },
     vehicleCapacity:Number
 }, {
     timestamps:true
