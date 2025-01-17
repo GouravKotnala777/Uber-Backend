@@ -42,6 +42,7 @@ export interface VehicleDetailesTypes{
     vehicleModel:string;
     vehicleNumber:string;
     vehicleColor:string;
+    vehicleCapacity:number;
 };
 export interface LocationTypes {
     ltd:number;
