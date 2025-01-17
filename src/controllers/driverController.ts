@@ -11,7 +11,7 @@ import { DriverLoginFormTypes, DriverRegisterFormTypes, DriverTypesPopulated, Ge
 // Driver register
 export const driverRegister = async(req:Request, res:Response, next:NextFunction) => {
     try {
-        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, password}:DriverRegisterFormTypes = req.body;
+        const {licenseNumber, vehicleColor, vehicleModel, vehicleNumber, vehicleType, vehicleCapacity, password}:DriverRegisterFormTypes = req.body;
         const user = (req as AuthenticatedRequest).user;
 
         const searchedDriver = await isDriverExists({userID:user._id, licenseNumber, vehicleNumber});
@@ -30,7 +30,8 @@ export const driverRegister = async(req:Request, res:Response, next:NextFunction
             vehicleColor,
             vehicleModel,
             vehicleNumber,
-            vehicleType
+            vehicleType,
+            vehicleCapacity
         });
 
         await sendSMS({receiverMobileNumber:user.mobile, document:createNewDriver, next});

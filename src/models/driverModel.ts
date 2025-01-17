@@ -21,7 +21,8 @@ const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
         },
         vehicleModel:String,
         vehicleNumber:String,
-        vehicleColor:String
+        vehicleColor:String,
+        vehicleCapacity:Number
     },
     availabilityStatus:{
         type:Boolean,
