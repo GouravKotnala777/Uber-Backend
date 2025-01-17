@@ -15,6 +15,7 @@ import { NEW_RIDE, RIDE_ACCEPTED, RIDE_CANCELLED, RIDE_ENDED, RIDE_STARTED } fro
 // Get my rides as passenger (except with requested status)
 export const myAllPastRidesPassenger = async(req:Request, res:Response, next:NextFunction) => {
     try {
+        const {skip}:{skip?:number} = req.query;
         const userID = (req as AuthenticatedRequest).user._id;
 
         const myAllRides = await Ride.find({
@@ -22,7 +23,9 @@ export const myAllPastRidesPassenger = async(req:Request, res:Response, next:Nex
             status:{
                 $ne:"requested"
             }
-        }).populate({model:"Driver", path:"driverID"}) as RideTypesPopulated[];
+        }).skip(Number(skip))
+        .limit(1)
+        .populate({model:"Driver", path:"driverID"}) as RideTypesPopulated[];
 
         res.status(200).json({success:true, message:"All rides", jsonData:myAllRides});
     } catch (error) {
