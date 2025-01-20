@@ -37,7 +37,7 @@ export const createPayment = async(req:Request, res:Response, next:NextFunction)
         if (!driver) return next(new ErrorHandler("Driver not found", 404));
         
 
-        sendMessageToSocketId({socketID:driver.userID.socketID, eventName:PAYMENT_DONE, message:`Payment ${amount} done`})
+        sendMessageToSocketId({socketID:driver.userID.socketID, eventName:PAYMENT_DONE, message:amount.toString()})
 
         res.status(200).json({success:true, message:"Payment done", jsonData:newPayment});
     } catch (error) {
