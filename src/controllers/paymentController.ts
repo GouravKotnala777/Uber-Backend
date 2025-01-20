@@ -7,6 +7,7 @@ import { sendMessageToSocketId } from "../socket.js";
 import { PAYMENT_DONE } from "../utils/constants.js";
 import Driver from "../models/driverModel.js";
 import { DriverTypesPopulated } from "../utils/types.js";
+import { findDriverByIDAndUpdate } from "../config/services/driverModelServices.js";
 
 
 export const createPayment = async(req:Request, res:Response, next:NextFunction) => {
@@ -28,8 +29,11 @@ export const createPayment = async(req:Request, res:Response, next:NextFunction)
 
         if (!updatedRide) return next(new ErrorHandler("Internal server error", 500));
         
-        const driver = await Driver.findById(updatedRide.driverID).populate({model:"User", path:"userID", select:"socketID"}) as DriverTypesPopulated;
-        
+        //const driver = await Driver.findBy(updatedRide.driverID).populate({model:"User", path:"userID", select:"socketID"}) as DriverTypesPopulated;
+        const driver = await findDriverByIDAndUpdate({
+            driverID:updatedRide.driverID as mongoose.Schema.Types.ObjectId,
+            revenue:amount
+        }, {populateUser:true});
         if (!driver) return next(new ErrorHandler("Driver not found", 404));
         
 

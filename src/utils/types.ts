@@ -55,6 +55,7 @@ export interface DriverTypes {
     vehicleDetailes:VehicleDetailesTypes;
     availabilityStatus:boolean;
     rating:number;
+    revenue:number;
     location:LocationTypes;
     createdAt:Date;
     updatedAt:Date;
@@ -63,7 +64,7 @@ export interface DriverTypes {
     varificationOTPExpirs?:Date;
     generateToken:(driverID:mongoose.Schema.Types.ObjectId) => Promise<string>;
 }
-export interface DriverTypesPopulated extends Pick<DriverTypes, "_id"|"licenseNumber"|"vehicleDetailes"|"availabilityStatus"|"rating"|"location"|"createdAt"|"updatedAt"|"generateToken"|"isVarified"|"varificationOTP"|"varificationOTPExpirs"> {
+export interface DriverTypesPopulated extends Pick<DriverTypes, "_id"|"licenseNumber"|"vehicleDetailes"|"availabilityStatus"|"rating"|"revenue"|"location"|"createdAt"|"updatedAt"|"generateToken"|"isVarified"|"varificationOTP"|"varificationOTPExpirs"> {
     userID:Pick<UserTypes, "_id"|"name"|"email"|"gender"|"mobile"|"role"|"socketID">;
     image?:string;
 }

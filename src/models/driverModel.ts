@@ -42,6 +42,10 @@ const driverSchema = new mongoose.Schema<DriverTypes|DriverTypesPopulated>({
         type:Number,
         default:0
     },
+    revenue:{
+        type:Number,
+        default:0
+    },
     location:{
         ltd:Number,
         lng:Number
