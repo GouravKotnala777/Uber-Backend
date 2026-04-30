@@ -11,11 +11,9 @@ export const initializeSocket = (server:HTTPSERVER<typeof IncomingMessage, typeo
     io = new Server(server, {
         cors:{
             origin:[
-                process.env.CLIENT_URL as string,
-                process.env.CLIENT_URL2 as string,
-                process.env.CLIENT_URL3 as string
+                process.env.CLIENT_URL as string
             ],
-            methods:["GET", "POST"],
+            methods:["GET", "POST", "PUT", "DELETE"],
             credentials:true
         }
     });
