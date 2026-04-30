@@ -47,19 +47,27 @@ export const getDistanceTime = async({origin, destination}:{origin:string; desti
 export const getAutoCompleteSuggestion = async({input}:{input:string;}) => {
     if (!input) throw new ErrorHandler("Query is required", 400);
 
-    const mapApiKey = process.env.VITE_GO_MAPS_API_KEY as string;
+    const mapApiKey = process.env.GO_MAPS_API_KEY as string;
+    
     const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${mapApiKey}`;
 
     try {
-        const response = await axios.get(url);
-        if (response.data.status === "OK") {
-            return response.data.predictions;
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            const errorBody = await response.text(); 
+            console.error(`GoMaps Error Status: ${response.status}`);
+            console.error(`GoMaps Error Body: ${errorBody}`);
+            
+            throw new ErrorHandler(`Upstream API Error: ${response.status}`, response.status);
         }
-        else{
-            throw new ErrorHandler("Unable to fetch suggestions", 500);
-        }
+
+        const data = await response.json();
+        return data;
+
     } catch (error) {
-        console.log(error);
+        console.error("Internal Catch:", error);
+        if (error instanceof ErrorHandler) throw error;
         throw new ErrorHandler((error as Error).message, 500);
     }
 
