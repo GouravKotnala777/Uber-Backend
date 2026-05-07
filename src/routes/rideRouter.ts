@@ -11,7 +11,7 @@ rideRouter.route("/driver/my-rides").get(isDriverAuthenticated, myAllPastRidesDr
 
 rideRouter.route("/create").post(isUserAuthenticated, createRideRequest);
 rideRouter.route("/accept").post(isDriverAuthenticated, acceptRideRequest);
-rideRouter.route("/get-fare").post(isUserAuthenticated, getFareOfTrip);
+rideRouter.route("/get-fare").get(isUserAuthenticated, getFareOfTrip);
 rideRouter.route("/start").post(isDriverAuthenticated, startRide);
 rideRouter.route("/end").post(isDriverAuthenticated, endRide);
 rideRouter.route("/cancel").post(isDriverAuthenticated, cancelRide);

@@ -174,11 +174,14 @@ export const acceptRideRequest = async(req:Request, res:Response, next:NextFunct
     }
 };
 // Get fare between two locations
-export const getFareOfTrip = async(req:Request, res:Response, next:NextFunction) => {
+export const getFareOfTrip = async(req:Request<{}, {}, {}, {dropoffLocation:string; pickupLocation:string;}>, res:Response, next:NextFunction) => {
     try {
-        const {pickupLocation, dropoffLocation}:{dropoffLocation:string; pickupLocation:string;} = req.body;
-
+        const {pickupLocation, dropoffLocation}:{dropoffLocation:string; pickupLocation:string;} = req.query;
+        
         console.log({pickupLocation, dropoffLocation});
+        if (!pickupLocation || !dropoffLocation) {
+            return next(new ErrorHandler(JSON.stringify({pickupLocation, dropoffLocation}), 400))
+        }
         
         const faresOfAllTypesOfVehicle = await getFare({pickupLocation, dropoffLocation});
 

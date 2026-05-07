@@ -11,32 +11,38 @@ import { baseFare, perKmRate, perMinuteRate } from "../../utils/constants.js";
 export const getFare = async({pickupLocation, dropoffLocation}:{pickupLocation:string; dropoffLocation:string;}) => {   
     if (!pickupLocation || !dropoffLocation) throw new ErrorHandler("Pickup and dropoffLocation are required", 400);
 
-    //----------------------------------------const distanceTime = await getDistanceTime({origin:pickupLocation, destination:dropoffLocation});
+    const distanceTime:{
+        mode:string,
+        units:string,
+        distance:number,
+        distance_units:string,
+        time:number,
+      }|undefined = await getDistanceTime({origin:pickupLocation, destination:dropoffLocation});
 
-    const distanceTime = {
-        distance:{
-          text:"1.0 km",
-          value:976
-        },
-        duration:{
-          text:"3 mins",
-          value:177
-        },
-        status:"OK"
-      }
+    //const distanceTime = {
+    //    distance:{
+    //      text:"1.0 km",
+    //      value:976
+    //    },
+    //    duration:{
+    //      text:"3 mins",
+    //      value:177
+    //    },
+    //    status:"OK"
+    //  }
 
  
     const fare:{[P in VehicleTypeTypes]:number;} = {
-        uberAuto:Math.round(baseFare.uberAuto + ((distanceTime.distance.value/1000)*perKmRate.uberAuto) + ((distanceTime.duration.value/60)*perMinuteRate.uberAuto)),
-        uberX:Math.round(baseFare.uberX + ((distanceTime.distance.value/1000)*perKmRate.uberX) + ((distanceTime.duration.value/60)*perMinuteRate.uberX)),
-        uberMoto:Math.round(baseFare.uberMoto + ((distanceTime.distance.value/1000)*perKmRate.uberMoto) + ((distanceTime.duration.value/60)*perMinuteRate.uberMoto)),
-        uberScooty:Math.round(baseFare.uberScooty + ((distanceTime.distance.value/1000)*perKmRate.uberScooty) + ((distanceTime.duration.value/60)*perMinuteRate.uberScooty)),
-        uberComfort:Math.round(baseFare.uberComfort + ((distanceTime.distance.value/1000)*perKmRate.uberComfort) + ((distanceTime.duration.value/60)*perMinuteRate.uberComfort)),
-        uberHCV:Math.round(baseFare.uberHCV + ((distanceTime.distance.value/1000)*perKmRate.uberHCV) + ((distanceTime.duration.value/60)*perMinuteRate.uberHCV)),
-        uberPool:Math.round(baseFare.uberPool + ((distanceTime.distance.value/1000)*perKmRate.uberPool) + ((distanceTime.duration.value/60)*perMinuteRate.uberPool)),
-        uberXL:Math.round(baseFare.uberXL + ((distanceTime.distance.value/1000)*perKmRate.uberXL) + ((distanceTime.duration.value/60)*perMinuteRate.uberXL)),
+        uberAuto:Math.round(baseFare.uberAuto + (((distanceTime?.distance||0)/1000)*perKmRate.uberAuto) + (((distanceTime?.time||0)/60)*perMinuteRate.uberAuto)),
+        uberX:Math.round(baseFare.uberX + (((distanceTime?.distance||0)/1000)*perKmRate.uberX) + (((distanceTime?.time||0)/60)*perMinuteRate.uberX)),
+        uberMoto:Math.round(baseFare.uberMoto + (((distanceTime?.distance||0)/1000)*perKmRate.uberMoto) + (((distanceTime?.time||0)/60)*perMinuteRate.uberMoto)),
+        uberScooty:Math.round(baseFare.uberScooty + (((distanceTime?.distance||0)/1000)*perKmRate.uberScooty) + (((distanceTime?.time||0)/60)*perMinuteRate.uberScooty)),
+        uberComfort:Math.round(baseFare.uberComfort + (((distanceTime?.distance||0)/1000)*perKmRate.uberComfort) + (((distanceTime?.time||0)/60)*perMinuteRate.uberComfort)),
+        uberHCV:Math.round(baseFare.uberHCV + (((distanceTime?.distance||0)/1000)*perKmRate.uberHCV) + (((distanceTime?.time||0)/60)*perMinuteRate.uberHCV)),
+        uberPool:Math.round(baseFare.uberPool + (((distanceTime?.distance||0)/1000)*perKmRate.uberPool) + (((distanceTime?.time||0)/60)*perMinuteRate.uberPool)),
+        uberXL:Math.round(baseFare.uberXL + (((distanceTime?.distance||0)/1000)*perKmRate.uberXL) + (((distanceTime?.time||0)/60)*perMinuteRate.uberXL)),
     };    
-    return {fare, distance:distanceTime.distance.value, duration:distanceTime.duration.value};    
+    return {fare, distance:(distanceTime?.distance||0), duration:(distanceTime?.time||0)};    
 };
 // Create new ride
 export const createRide = async({
